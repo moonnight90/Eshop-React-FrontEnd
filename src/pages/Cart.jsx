@@ -9,10 +9,14 @@ import { setOrder } from "../store/orderSlice";
 function Cart() {
   // States
   const [cart, setCart] = React.useState([]);
-  const [total, setTotal] = React.useState(0);
   const [loading, setLoading] = React.useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const total = cart.reduce(
+    (sum, item) => sum + item.product.price * item.quantity,
+    0
+  );
 
   // Methods
   const loadCart = useCallback(async () => {
@@ -20,7 +24,7 @@ function Cart() {
     const data = await myBackend.getCart({ quantity_only: 0 });
     setCart(data || []);
     setLoading(false);
-  });
+  }, []);
 
   const handleQuantityChange = async (id, quantity) => {
     if (loading) return;
@@ -48,13 +52,13 @@ function Cart() {
     loadCart();
   }, []);
 
-  React.useEffect(() => {
-    let total = 0;
-    cart.forEach((item) => {
-      total += item.product.price * item.quantity;
-    });
-    setTotal(total);
-  }, [cart]);
+  // React.useEffect(() => {
+  //   let total = 0;
+  //   cart.forEach((item) => {
+  //     total += item.product.price * item.quantity;
+  //   });
+  //   setTotal(total);
+  // }, [cart]);
 
   const handleDelete = async (id) => {
     const resp = await myBackend.deleteCart(id);
@@ -287,4 +291,4 @@ function Cart() {
   );
 }
 
-export default Cart;
+export default React.memo(Cart);

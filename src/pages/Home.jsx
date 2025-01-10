@@ -1,9 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import { Slider, Products } from "../components";
 import myBackend from "../backend/config";
+import { useSearchParams } from "react-router-dom";
 
 function Home() {
-  const [products, setProducts] = React.useState(null);
+  const [products, setProducts] = useState(null);
+  const [page, setPage] = useState(1);
+  const [params, setParams] = useSearchParams();
   const fetchProducts = async () => {
     try {
       const products = await myBackend.getProducts({
@@ -12,7 +15,6 @@ function Home() {
         order: "asc",
       });
       setProducts(products.results);
-  
     } catch (error) {
       console.error(error);
     }
@@ -271,7 +273,16 @@ function Home() {
       </div>
       <p className="mx-auto mt-10 mb-5 max-w-[1200px] px-5">TOP RATED</p>
 
-      <Products limit={21} sortby="rating" order="desc" pagination={false}  />
+      <Products
+        limit={21}
+        sortby="rating"
+        order="desc"
+        pagination={false}
+        page={page}
+        setPage={setPage}
+        params={params}
+        setParams={setParams}
+      />
     </>
   );
 }

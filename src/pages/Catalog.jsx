@@ -1,9 +1,10 @@
-import React, { Suspense, lazy, useState } from "react";
+import React, { Suspense, lazy, useCallback, useEffect, useState } from "react";
 import myBackend from "../backend/config";
-import { Link, useParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Skeleton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
+import { LoadingScreen } from "../components";
 // Lazy load the Products component
 const Products = lazy(() => import("../components/Products"));
 
@@ -16,9 +17,11 @@ function Catalog() {
   const [categories, setCategories] = useState(false);
   const [checkedCategories, setCheckedCategories] = useState([]);
   const [showFilters, setShowFilters] = useState(false);
+  const [params, setParams] = useSearchParams();
+  const [page, setPage] = useState(1);
 
   // Hooks
-  React.useEffect(() => {
+  useEffect(() => {
     async function fetchCategories() {
       try {
         const cats = await myBackend.categories();
@@ -28,24 +31,25 @@ function Catalog() {
         setCategories([]);
       }
     }
+    const categories_str = params.get("cat");
+    console.log(categories_str);
+
+    if (categories_str) setCheckedCategories(categories_str.split(","));
 
     fetchCategories(); // Call the async function inside useEffect
   }, []);
 
-  React.useEffect(() => {
-  }, [checkedCategories]);
-
   // Methods
 
-  const handleCategory = (e) => {
+  const handleCategory = useCallback((e) => {
     if (e.target.checked) {
       setCheckedCategories((prev) => [...prev, e.target.value]);
     } else {
       setCheckedCategories((prev) => prev.filter((v) => v != e.target.value));
     }
-  };
+  });
 
-  const handleSort = (e) => {
+  const handleSort = useCallback((e) => {
     const targetValue = e.target.value;
 
     if (targetValue === "top-rated") {
@@ -69,7 +73,7 @@ function Catalog() {
         order: "asc",
       });
     }
-  };
+  });
 
   return (
     <div className="flex flex-col justify-between">
@@ -241,7 +245,15 @@ function Catalog() {
           </div>
           <hr />
           <Suspense fallback={<Skeleton variant="rectangular" height={400} />}>
-            <Products limit={24} {...sort} categories={checkedCategories} />
+            <Products
+              limit={24}
+              {...sort}
+              categories={checkedCategories}
+              page={page}
+              setPage={setPage}
+              setParams={setParams}
+              params={params}
+            />
           </Suspense>
         </div>
       </section>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import myBackend from "../backend/config";
 import Pagination from "@mui/material/Pagination";
 import Stack from "@mui/material/Stack";
@@ -11,14 +11,18 @@ const Products = ({
   order,
   pagination = true,
   categories: defaultCategories,
-  defaultPage = 1,
+  page,
+  setPage,
+  params,
+  setParams,
 }) => {
   // States
-  const [products, setProducts] = React.useState(false);
-  const [page, setPage] = React.useState(defaultPage);
-  const [loading, setLoading] = React.useState(false);
-  const [showMessage, setShowMessage] = React.useState(false);
-  const [snackBarMessage, setSnackBarMessage] = React.useState("");
+  const [products, setProducts] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [showMessage, setShowMessage] = useState(false);
+  const [snackBarMessage, setSnackBarMessage] = useState("");
+  // const [page, setPage] = useState(defaultPage);
+  // const [params, setParams] = useSearchParams();
 
   const categories = React.useMemo(
     () => defaultCategories || [],
@@ -26,7 +30,7 @@ const Products = ({
   );
 
   // Methods
-  const loadProducts = React.useCallback(
+  const loadProducts = useCallback(
     async (page) => {
       const data = await myBackend.getProducts({
         limit,
@@ -56,14 +60,14 @@ const Products = ({
       setLoading(false);
     } // Dependencies
   );
-  const handleLoadMore = React.useCallback(() => {
+  const handleLoadMore = useCallback(() => {
     // Handle in infinite scroll
     setLoading(true);
     setPage((prevPage) => prevPage + 1);
   }, []);
 
   // Hooks
-  React.useEffect(
+  useEffect(
     () => {
       if (page == 1) loadProducts(page);
       else setPage(1);
@@ -71,13 +75,34 @@ const Products = ({
     [categories] // Dependencies
   );
 
-  React.useEffect(
+  useEffect(
     () => {
-      if (pagination) window.scrollTo({top:0,left:0,behavior:"smooth"});
+      if (pagination) window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
       loadProducts(page);
+      
     },
-    [page, sortby, order, limit] // Dependencies
+    [sortby, order, limit,params] // Dependencies
   );
+
+  // useEffect(() => {
+  //   if (params.get("page")) {
+  //     console.log(params.get('page'))
+  //     setPage(parseInt(params.get("page")));
+  //   }
+  // }, [params]);
+  useEffect(()=>{
+    setParams((prev) => ({ ...Object.fromEntries(prev.entries()), page }));
+  },[page])
+  useEffect(() => {
+    if (categories.length) {
+      setParams((prev) => ({
+        ...Object.fromEntries(prev.entries()),
+        cat: categories.join(","),
+      }));
+    } else {
+      setParams(params.delete("cat"));
+    }
+  }, [categories]);
 
   return products === false ? (
     <>

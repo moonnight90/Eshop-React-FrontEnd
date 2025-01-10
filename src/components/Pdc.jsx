@@ -45,9 +45,8 @@ function Pdc({ product, showMessage, setShowMessage, setSnackBarMessage }) {
   const handleAddtoWishlist = useCallback(async (id) => {
     const resp = await myBackend.addtoWishlist(user.user_token, id);
     if (resp.status == 200) {
-      setSnackBarMessage("Added to wishlist ...")
+      setSnackBarMessage("Added to wishlist ...");
       setShowMessage(true);
-      
     }
   });
   return (
@@ -63,7 +62,7 @@ function Pdc({ product, showMessage, setShowMessage, setSnackBarMessage }) {
         <div className="relative flex">
           <LazyLoad height={200} offset={100} className="w-full">
             <img
-              className="h-48 w-full object-contain"
+              className="h-48 w-full object-contain z-50"
               src={`${conf.BACKEND_DOMAIN}/${
                 product?.imgs && product?.imgs[0]
               }`}
@@ -92,10 +91,10 @@ function Pdc({ product, showMessage, setShowMessage, setSnackBarMessage }) {
                 </svg>
               </span>
             </Link>
-            <span className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-amber-400"
-            onClick={()=>handleAddtoWishlist(product?.id)}
+            <span
+              className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-amber-400"
+              onClick={() => handleAddtoWishlist(product?.id)}
             >
-              
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
