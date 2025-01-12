@@ -55,7 +55,7 @@ const Products = ({ limit = 12, pagination = true, sortby, order }) => {
     // Handle in infinite scroll
     setLoading(true);
     dispatch(updatePage(catalog?.page + 1));
-  }, []);
+  });
 
   // Hooks
   // useEffect(

@@ -1,9 +1,10 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { AccountSideBar, NavigationBar, SnackBar } from "../components";
 import myBackend from "../backend/config";
-import { useSelector } from "react-redux";
-import { Link,useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
 import conf from "../config/conf";
+import { setCartCount } from "../store/cartSlice";
 
 function Wishlist() {
   // States
@@ -13,6 +14,8 @@ function Wishlist() {
   const user = useSelector((state) => state.auth);
   const [snackBarMessage, setSnackBarMessage] = useState("");
   const [showMessage, setShowMessage] = useState(null);
+  const dispatch = useDispatch();
+
 
   //methods
   const addCartHandle = useCallback(async (id) => {
@@ -28,6 +31,14 @@ function Wishlist() {
       setSnackBarMessage(resp?.error);
       setShowMessage(true);
     }
+
+    async function chnageCartQuantity() {
+      const resp = await myBackend.getCart({ quantity_only: 1 });
+      if (resp) {
+        dispatch(setCartCount(resp?.total_quantity));
+      }
+    }
+    chnageCartQuantity();
   });
 
   const handleDeleteItem = useCallback(async (id) => {

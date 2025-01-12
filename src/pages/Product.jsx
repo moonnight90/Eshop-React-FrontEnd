@@ -4,9 +4,10 @@ import { CartCounter, SnackBar } from "../components";
 import myBackend from "../backend/config";
 import { Rating } from "@mui/material";
 import { Link } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import conf from "../config/conf";
+import { setCartCount } from "../store/cartSlice";
 function Product() {
   // States
   const [product, setProduct] = React.useState(false);
@@ -18,6 +19,7 @@ function Product() {
   const { id } = useParams();
   const user = useSelector((state) => state.auth);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   //Methods
   const loadProduct = async () => {
@@ -43,14 +45,21 @@ function Product() {
       setSnackBarMessage(resp?.error);
       setShowMessage(true);
     }
+
+    async function chnageCartQuantity() {
+      const resp = await myBackend.getCart({ quantity_only: 1 });
+      if (resp) {
+        dispatch(setCartCount(resp?.total_quantity));
+      }
+    }
+    chnageCartQuantity();
   };
 
   const handleAddtoWishlist = useCallback(async (id) => {
     const resp = await myBackend.addtoWishlist(user.user_token, id);
     if (resp.status == 200) {
-      setSnackBarMessage("Added to wishlist ...")
+      setSnackBarMessage("Added to wishlist ...");
       setShowMessage(true);
-      
     }
   });
 
@@ -213,8 +222,9 @@ function Product() {
                   </svg>
                   Add to cart
                 </button>
-                <button className="flex h-12 w-1/3 min-w-[140px] items-center justify-center bg-amber-400 duration-100 hover:bg-yellow-300"
-                onClick={()=>handleAddtoWishlist(product?.id)}
+                <button
+                  className="flex h-12 w-1/3 min-w-[140px] items-center justify-center bg-amber-400 duration-100 hover:bg-yellow-300"
+                  onClick={() => handleAddtoWishlist(product?.id)}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"

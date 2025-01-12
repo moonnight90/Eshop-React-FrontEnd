@@ -57,6 +57,7 @@ function Catalog() {
     }
 
     // Loading params values from url to State
+    dispatch(reset());
 
     const categories_str = getQueryparams("cat", (val) => val.split(","));
     categories_str && dispatch(updateCategories(categories_str));
@@ -295,10 +296,10 @@ function Catalog() {
               <FilterAltIcon />
             </button>
 
-            <div className="border-2 border-yellow-400 p-3 text-purple-900 focus:outline-none focus:border-purple-800 transition duration-300 ease-in-out">
+            <div className="border-2 border-yellow-400 text-purple-900 focus:outline-none focus:border-purple-800 transition duration-300 ease-in-out">
               <SortIcon />
               <select
-                className="focus:outline-none bg-inherit"
+                className="focus:outline-none bg-inherit h-full p-3"
                 defaultValue={""}
                 onChange={handleSort}
               >

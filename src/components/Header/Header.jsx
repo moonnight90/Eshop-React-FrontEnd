@@ -10,9 +10,11 @@ import backendAuth from "../../backend/auth";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import SearchIcon from "@mui/icons-material/Search";
 import conf from "../../config/conf";
+import { setCartCount } from "../../store/cartSlice";
 
 function Header() {
   const user = useSelector((state) => state.auth);
+  const cartCount = useSelector((state) => state.cartCount);
 
   // States
   const [showMenu, setShowMenu] = React.useState(false);
@@ -40,7 +42,7 @@ function Header() {
     async function chnageCartQuantity() {
       const resp = await myBackend.getCart({ quantity_only: 1 });
       if (resp) {
-        setTotalCartQuantity(resp?.total_quantity);
+        dispatch(setCartCount(resp?.total_quantity));
       }
     }
     chnageCartQuantity();
@@ -115,7 +117,9 @@ function Header() {
                     <li className="px-5 py-2 hover:text-yellow-500">Catalog</li>
                   </Link>
                   <Link to="wishlist">
-                    <li className="px-5 py-2 hover:text-yellow-500">Wishlist</li>
+                    <li className="px-5 py-2 hover:text-yellow-500">
+                      Wishlist
+                    </li>
                   </Link>
                   <Link to="">
                     <li className="px-5 py-2 hover:text-yellow-500">
@@ -206,12 +210,12 @@ function Header() {
             to={user?.is_login ? "/cart" : "/login"}
             className="flex cursor-pointer flex-col items-center justify-center relative"
           >
-            {totalCartQuantity != 0 && (
+            {cartCount?.cartCount != 0 && (
               <span
                 className="absolute bg-yellow-400 w-5 h-5 text-sm text-purple-800 bottom-8 left-4 rounded-full text-center"
                 style={{ boxShadow: "0px 0px 8px 3px rgba(0, 0, 0, 0.2)" }}
               >
-                {totalCartQuantity}
+                {cartCount?.cartCount}
               </span>
             )}
             <FaShoppingCart className="h-6 w-6" />

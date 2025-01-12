@@ -3,8 +3,9 @@ import { Link, useNavigate } from "react-router-dom";
 import myBackend from "../backend/config";
 import { CartCounter, LoadingScreen } from "../components";
 import conf from "../config/conf";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setOrder } from "../store/orderSlice";
+import { setCartCount } from "../store/cartSlice";
 
 function Cart() {
   // States
@@ -12,6 +13,7 @@ function Cart() {
   const [loading, setLoading] = React.useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const cartCount = useSelector((state) => state.cartCount);
 
   const total = cart.reduce(
     (sum, item) => sum + item.product.price * item.quantity,
@@ -65,6 +67,7 @@ function Cart() {
     if (resp) {
       setCart((prev) => prev.filter((item) => item?.id !== id));
     }
+    dispatch(setCartCount(cartCount?.cartCount - 1));
   };
 
   return (

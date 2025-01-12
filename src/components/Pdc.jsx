@@ -3,14 +3,16 @@ import LazyLoad from "react-lazyload";
 import { Rating, Skeleton } from "@mui/material";
 import { Link } from "react-router-dom";
 import myBackend from "../backend/config";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import conf from "../config/conf";
+import { setCartCount } from "../store/cartSlice";
 function Pdc({ product, showMessage, setShowMessage, setSnackBarMessage }) {
   // States
   const [loading, setLoading] = useState(true);
   const user = useSelector((state) => state.auth);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (product) {
@@ -28,7 +30,6 @@ function Pdc({ product, showMessage, setShowMessage, setSnackBarMessage }) {
       quantity: 1,
     });
     if (resp?.status == 200) {
-      console.log("Product added to cart...");
       setSnackBarMessage(resp?.success);
       if (showMessage) {
         setShowMessage(false);
@@ -40,6 +41,14 @@ function Pdc({ product, showMessage, setShowMessage, setSnackBarMessage }) {
       setSnackBarMessage(resp?.error);
       setShowMessage(true);
     }
+
+    async function chnageCartQuantity() {
+      const resp = await myBackend.getCart({ quantity_only: 1 });
+      if (resp) {
+        dispatch(setCartCount(resp?.total_quantity));
+      }
+    }
+    chnageCartQuantity();
   };
 
   const handleAddtoWishlist = useCallback(async (id) => {
