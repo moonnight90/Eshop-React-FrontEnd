@@ -10,8 +10,10 @@ class MyBackend {
     sortby = "title",
     order = "asc",
     page = 1,
+    min_price,
+    max_price,
     categories = [],
-  }) {
+  }) {    
     sortby = `${order === "asc" ? "" : "-"}${sortby}`;
     try {
       const response = await fetch(
@@ -19,6 +21,8 @@ class MyBackend {
           this.BASE
         }/api/products/?limit=${limit}&page=${page}&ordering=${sortby}${
           categories.length ? `&category=${categories.join("&category=")}` : ""
+        }${min_price ? `&min_price=${min_price}` : ""}${
+          max_price ? `&max_price=${max_price}` : ""
         }`
       );
       return await response.json();

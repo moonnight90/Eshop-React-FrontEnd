@@ -1,24 +1,48 @@
-import React, { Suspense, lazy, useCallback, useEffect, useState } from "react";
+import React, {
+  Suspense,
+  createRef,
+  lazy,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import myBackend from "../backend/config";
 import { Link, useSearchParams } from "react-router-dom";
 import { Skeleton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
-import { LoadingScreen } from "../components";
+import { PriceInputFilter, Input } from "../components";
+import { useSelector, useDispatch } from "react-redux";
+import SortIcon from "@mui/icons-material/Sort";
+import {
+  reset,
+  updateCategories,
+  updateOrdering,
+  updatePage,
+  updatePrice,
+} from "../store/productSlice";
 // Lazy load the Products component
 const Products = lazy(() => import("../components/Products"));
 
 function Catalog() {
   // States
-  const [sort, setSort] = useState({
-    sortby: "title",
-    order: "asc",
-  });
   const [categories, setCategories] = useState(false);
-  const [checkedCategories, setCheckedCategories] = useState([]);
   const [showFilters, setShowFilters] = useState(false);
   const [params, setParams] = useSearchParams();
-  const [page, setPage] = useState(1);
+
+  //store states
+  const catalog = useSelector((state) => state.catalog);
+  const dispatch = useDispatch();
+
+  // Helping Fn
+  const getQueryparams = useCallback(
+    (key, tranformFn = (val) => val) => {
+      const value = params.get(key);
+      return value ? tranformFn(value) : null;
+    },
+    [params]
+  );
 
   // Hooks
   useEffect(() => {
@@ -31,47 +55,90 @@ function Catalog() {
         setCategories([]);
       }
     }
-    const categories_str = params.get("cat");
-    console.log(categories_str);
 
-    if (categories_str) setCheckedCategories(categories_str.split(","));
+    // Loading params values from url to State
+
+    const categories_str = getQueryparams("cat", (val) => val.split(","));
+    categories_str && dispatch(updateCategories(categories_str));
+
+    const page = getQueryparams("page", Number);
+    page && dispatch(updatePage(page));
+
+    const minp = getQueryparams("min_price", Number);
+    const maxp = getQueryparams("max_price", Number);
+    (minp || maxp) && dispatch(updatePrice([minp, maxp]));
 
     fetchCategories(); // Call the async function inside useEffect
   }, []);
 
   // Methods
-
   const handleCategory = useCallback((e) => {
+    dispatch(updatePage(1));
     if (e.target.checked) {
-      setCheckedCategories((prev) => [...prev, e.target.value]);
+      const cats = Array.from(catalog?.filters?.categories);
+      cats.push(e.target.value);
+      dispatch(updateCategories(cats));
     } else {
-      setCheckedCategories((prev) => prev.filter((v) => v != e.target.value));
+      dispatch(
+        updateCategories(
+          catalog?.filters?.categories.filter((v) => v != e.target.value)
+        )
+      );
     }
   });
+
+  useEffect(() => {
+    let temp_params_obj = Object();
+
+    catalog?.filters?.categories.length &&
+      (temp_params_obj["cat"] = catalog?.filters?.categories.join(","));
+
+    catalog?.filters?.price[0] &&
+      (temp_params_obj["min_price"] = catalog?.filters?.price[0]);
+    catalog?.filters?.price[1] &&
+      (temp_params_obj["max_price"] = catalog?.filters?.price[1]);
+
+    catalog?.page && (temp_params_obj["page"] = catalog?.page);
+
+    catalog?.ordering?.sort_by &&
+      (temp_params_obj["sort_by"] = catalog?.ordering?.sort_by);
+    catalog?.ordering?.order &&
+      (temp_params_obj["order"] = catalog?.ordering?.order);
+
+    setParams(temp_params_obj);
+  }, [catalog]);
 
   const handleSort = useCallback((e) => {
     const targetValue = e.target.value;
 
     if (targetValue === "top-rated") {
-      setSort({
-        sortby: "rating",
-        order: "desc",
-      });
+      dispatch(
+        updateOrdering({
+          sort_by: "rating",
+          order: "desc",
+        })
+      );
     } else if (targetValue === "price-asc") {
-      setSort({
-        sortby: "price",
-        order: "asc",
-      });
+      dispatch(
+        updateOrdering({
+          sort_by: "price",
+          order: "asc",
+        })
+      );
     } else if (targetValue === "price-desc") {
-      setSort({
-        sortby: "price",
-        order: "desc",
-      });
+      dispatch(
+        updateOrdering({
+          sort_by: "price",
+          order: "desc",
+        })
+      );
     } else {
-      setSort({
-        sortby: "title",
-        order: "asc",
-      });
+      dispatch(
+        updateOrdering({
+          sort_by: "title",
+          order: "asc",
+        })
+      );
     }
   });
 
@@ -129,7 +196,9 @@ function Catalog() {
                           type="checkbox"
                           value={category?.name}
                           onChange={handleCategory}
-                          checked={checkedCategories.includes(category?.name)}
+                          checked={catalog?.filters?.categories?.includes(
+                            category?.name
+                          )}
                         />
                         <p className="ml-4 text-gray-700 font-normal">
                           {category?.name.charAt(0).toUpperCase() +
@@ -149,7 +218,7 @@ function Catalog() {
           </div>
           <div>
             <p className="mb-3 font-medium">Price</p>
-            <div>hello</div>
+            <PriceInputFilter />
           </div>
         </section>
         {/* Desktop View-End */}
@@ -194,7 +263,9 @@ function Catalog() {
                       type="checkbox"
                       value={category?.name}
                       onChange={handleCategory}
-                      checked={checkedCategories.includes(category?.name)}
+                      checked={catalog?.filters?.categories?.includes(
+                        category?.name
+                      )}
                     />
                     <p className="ml-4 text-gray-700 font-normal">
                       {category?.name.charAt(0).toUpperCase() +
@@ -224,36 +295,31 @@ function Catalog() {
               <FilterAltIcon />
             </button>
 
-            <select
-              className="border-2 border-yellow-400 p-3 text-purple-900 focus:outline-none focus:border-purple-800 transition duration-300 ease-in-out"
-              defaultValue={""}
-              onChange={handleSort}
-            >
-              <option value="" disabled hidden>
-                Sort By
-              </option>
-              <option value="top-rated" className="bg-white text-purple-900">
-                Top Rated
-              </option>
-              <option value="price-asc" className="bg-white text-purple-900">
-                Price (ASC)
-              </option>
-              <option value="price-desc" className="bg-white text-purple-900">
-                Price (DESC)
-              </option>
-            </select>
+            <div className="border-2 border-yellow-400 p-3 text-purple-900 focus:outline-none focus:border-purple-800 transition duration-300 ease-in-out">
+              <SortIcon />
+              <select
+                className="focus:outline-none bg-inherit"
+                defaultValue={""}
+                onChange={handleSort}
+              >
+                <option value="" disabled hidden>
+                  Sort By
+                </option>
+                <option value="top-rated" className="bg-white text-purple-900">
+                  Top Rated
+                </option>
+                <option value="price-asc" className="bg-white text-purple-900">
+                  Price (ASC)
+                </option>
+                <option value="price-desc" className="bg-white text-purple-900">
+                  Price (DESC)
+                </option>
+              </select>
+            </div>
           </div>
           <hr />
           <Suspense fallback={<Skeleton variant="rectangular" height={400} />}>
-            <Products
-              limit={24}
-              {...sort}
-              categories={checkedCategories}
-              page={page}
-              setPage={setPage}
-              setParams={setParams}
-              params={params}
-            />
+            <Products limit={24} setParams={setParams} params={params} />
           </Suspense>
         </div>
       </section>

@@ -22,6 +22,7 @@ import LoadingScreen from "./LoadingScreen";
 import UpdateAddress from "./UpdateAddress";
 import Burger from "./Burger";
 import OrderOverview from "./OrderOverview";
+import PriceInputFilter from "./PriceInputFilter";
 export {
   Header,
   Footer,
@@ -46,5 +47,6 @@ export {
   LoadingScreen,
   UpdateAddress,
   Burger,
-  OrderOverview
+  OrderOverview,
+  PriceInputFilter
 };

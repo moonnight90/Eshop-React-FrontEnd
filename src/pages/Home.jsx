@@ -1,12 +1,15 @@
 import React, { useState } from "react";
 import { Slider, Products } from "../components";
 import myBackend from "../backend/config";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { reset } from "../store/productSlice";
 
 function Home() {
   const [products, setProducts] = useState(null);
   const [page, setPage] = useState(1);
   const [params, setParams] = useSearchParams();
+  const dispatch = useDispatch();
   const fetchProducts = async () => {
     try {
       const products = await myBackend.getProducts({
@@ -19,7 +22,8 @@ function Home() {
       console.error(error);
     }
   };
-  React.useEffect(() => {
+  React.useEffect(() => {    
+    dispatch(reset());
     fetchProducts();
   }, []);
   return (
@@ -40,9 +44,13 @@ function Home() {
             Consequatur aperiam natus, nulla, obcaecati nesciunt, itaque
             adipisci earum ducimus pariatur eaque labore.
           </p>
-          <button className="mx-auto mt-5 w-1/2 bg-amber-400 px-3 py-1 text-black duration-100 hover:bg-yellow-300 lg:mx-0 lg:h-10 lg:w-2/12 lg:px-10">
-            Order Now
-          </button>
+          <Link
+            className="mx-auto mt-5 w-1/2 bg-amber-400 px-3 py-1 text-black duration-100 hover:bg-yellow-300 lg:mx-0 lg:h-10 lg:w-2/12 lg:px-10"
+            to={"/catalog?cat=furniture"}
+            target="_blank"
+          >
+            Explore Now
+          </Link>
         </div>
       </div>
 

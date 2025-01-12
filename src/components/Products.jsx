@@ -4,40 +4,30 @@ import Pagination from "@mui/material/Pagination";
 import Stack from "@mui/material/Stack";
 import CircularProgress from "@mui/material/CircularProgress";
 import { Button, ProductCard, SnackBar } from "./index";
+import { useDispatch, useSelector } from "react-redux";
+import { updatePage } from "../store/productSlice";
 
-const Products = ({
-  limit = 12,
-  sortby,
-  order,
-  pagination = true,
-  categories: defaultCategories,
-  page,
-  setPage,
-  params,
-  setParams,
-}) => {
+const Products = ({ limit = 12, pagination = true, sortby, order }) => {
   // States
   const [products, setProducts] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showMessage, setShowMessage] = useState(false);
   const [snackBarMessage, setSnackBarMessage] = useState("");
-  // const [page, setPage] = useState(defaultPage);
-  // const [params, setParams] = useSearchParams();
 
-  const categories = React.useMemo(
-    () => defaultCategories || [],
-    [defaultCategories]
-  );
+  const catalog = useSelector((state) => state.catalog);
+  const dispatch = useDispatch();
 
   // Methods
   const loadProducts = useCallback(
-    async (page) => {
+    async () => {
       const data = await myBackend.getProducts({
         limit,
-        sortby,
-        order,
-        page,
-        categories,
+        sortby: sortby ? sortby : catalog?.ordering?.sort_by,
+        order: order ? order : catalog?.ordering?.order,
+        page: catalog?.page,
+        categories: catalog?.filters?.categories,
+        min_price: catalog?.filters?.price[0],
+        max_price: catalog?.filters?.price[1],
       });
 
       if (pagination) {
@@ -58,30 +48,37 @@ const Products = ({
       }
 
       setLoading(false);
-    } // Dependencies
+    },
+    [catalog] // Dependencies
   );
   const handleLoadMore = useCallback(() => {
     // Handle in infinite scroll
     setLoading(true);
-    setPage((prevPage) => prevPage + 1);
+    dispatch(updatePage(catalog?.page + 1));
   }, []);
 
   // Hooks
-  useEffect(
-    () => {
-      if (page == 1) loadProducts(page);
-      else setPage(1);
-    },
-    [categories] // Dependencies
-  );
+  // useEffect(
+  //   () => {
+  //     if (page == 1) loadProducts();
+  //     else setPage(1);
+  //   },
+  //   [catalog?.filters?.categories] // Dependencies
+  // );
 
   useEffect(
     () => {
       if (pagination) window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
-      loadProducts(page);
-      
+
+      // if (params.get("min_price")) {
+      //   setMinp(parseInt(params.get("min_price")));
+      // } else setMinp(null);
+      // if (params.get("max_price")) {
+      //   setMaxp(parseInt(params.get("max_price")));
+      // } else setMaxp(null);
+      loadProducts();
     },
-    [sortby, order, limit,params] // Dependencies
+    [catalog] // Dependencies
   );
 
   // useEffect(() => {
@@ -90,19 +87,19 @@ const Products = ({
   //     setPage(parseInt(params.get("page")));
   //   }
   // }, [params]);
-  useEffect(()=>{
-    setParams((prev) => ({ ...Object.fromEntries(prev.entries()), page }));
-  },[page])
-  useEffect(() => {
-    if (categories.length) {
-      setParams((prev) => ({
-        ...Object.fromEntries(prev.entries()),
-        cat: categories.join(","),
-      }));
-    } else {
-      setParams(params.delete("cat"));
-    }
-  }, [categories]);
+  // useEffect(() => {
+  //   setParams((prev) => ({ ...Object.fromEntries(prev.entries()), page }));
+  // }, [page]);
+  // useEffect(() => {
+  //   if (categories.length) {
+  //     setParams((prev) => ({
+  //       ...Object.fromEntries(prev.entries()),
+  //       cat: categories.join(","),
+  //     }));
+  //   } else {
+  //     setParams(params.delete("cat"));
+  //   }
+  // }, [catalog?.filters?.categories]);
 
   return products === false ? (
     <>
@@ -115,7 +112,7 @@ const Products = ({
   ) : (
     <>
       <section className="mx-auto grid max-w-[1200px] grid-cols-1 sm2:grid-cols-2 gap-3 px-5 pb-10 md:grid-cols-3 lg:grid-cols-4">
-        {products?.results.map((product) => (
+        {products?.results?.map((product) => (
           <ProductCard
             key={product.id}
             product={product}
@@ -130,12 +127,12 @@ const Products = ({
         <Pagination
           className="flex justify-center"
           count={Math.ceil(products?.count / limit)}
-          page={page}
-          onChange={(e, v) => setPage(v)}
+          page={catalog?.page}
+          onChange={(_, v) => dispatch(updatePage(v))}
         />
       ) : (
         <div className="flex justify-center">
-          {Math.ceil(products?.count / limit) > page && (
+          {Math.ceil(products?.count / limit) > catalog?.page && (
             <Button
               className={`bg-purple-800 p-2 min-h-[40px] min-w-32 text-yellow-300 hover:bg-purple-600 ${
                 loading ? "bg-gray-200 hover:bg-gray-200" : ""
