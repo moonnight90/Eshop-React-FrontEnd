@@ -20,6 +20,7 @@ function Header() {
   const [showMenu, setShowMenu] = React.useState(false);
   const [showCats, setShowCats] = React.useState(false);
   const [totalCartQuantity, setTotalCartQuantity] = React.useState(0);
+  const [suggestion, setSuggestion] = React.useState([]);
   const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
@@ -169,7 +170,7 @@ function Header() {
         </div> */}
 
         {/* search Item */}
-        <form className="hidden h-9 w-2/5 items-center gap-1 pl-1 border md:flex">
+        <form className="hidden h-9 w-2/5 items-center gap-1 pl-1 border md:flex relative">
           <SearchIcon sx={{ fontSize: "20px" }} />
 
           <input
@@ -181,6 +182,7 @@ function Header() {
           <button className="ml-auto h-full bg-amber-400 px-4 hover:bg-yellow-300">
             Search
           </button>
+          <div className="absolute top-10 z-20 left-0 w-full min-h-80 bg-slate-100 shadow-2xl"></div>
         </form>
 
         <div className="hidden gap-3 md:!flex">

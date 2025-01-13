@@ -69,6 +69,11 @@ function Catalog() {
     const maxp = getQueryparams("max_price", Number);
     (minp || maxp) && dispatch(updatePrice([minp, maxp]));
 
+    const sort_by = getQueryparams("sort_by");
+    const order = getQueryparams("order");
+
+    sort_by && dispatch(updateOrdering({ sort_by, order }));
+
     fetchCategories(); // Call the async function inside useEffect
   }, []);
 
@@ -225,7 +230,7 @@ function Catalog() {
         {/* Desktop View-End */}
         {/* Mobile View */}
         <section
-          className={`md:hidden fixed top-0 bg-gray-100 z-10 min-w-[300px] h-screen p-6 transition-all duration-500 ease-in-out ${
+          className={`md:hidden fixed top-0 bg-gray-100 z-10 w-[300px] h-screen p-6 transition-all duration-500 ease-in-out ${
             showFilters ? "left-0" : "-left-80"
           }
            shadow-2xl
@@ -282,13 +287,17 @@ function Catalog() {
               ))
             )}
           </div>
+          <div className="">
+            <p className="mt-3 font-medium">Price</p>
+            <PriceInputFilter />
+          </div>
         </section>
         {/* Filters-End */}
 
         <div className="w-full">
           <div className="mb-5 flex items-center justify-between lg:justify-end px-5">
             <button
-              className=" md:hidden"
+              className=" md:hidden hover:shadow-md rounded-full h-8 w-8"
               onClick={() => {
                 setShowFilters(true);
               }}
@@ -300,7 +309,16 @@ function Catalog() {
               <SortIcon />
               <select
                 className="focus:outline-none bg-inherit h-full p-3"
-                defaultValue={""}
+                value={
+                  catalog?.ordering?.sort_by === "title"
+                    ? ""
+                    : catalog?.ordering?.sort_by === "rating"
+                    ? "top-rated"
+                    : catalog?.ordering?.sort_by === "price" &&
+                      catalog?.ordering?.order === "asc"
+                    ? "price-asc"
+                    : "price-desc"
+                }
                 onChange={handleSort}
               >
                 <option value="" disabled hidden>

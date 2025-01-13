@@ -13,7 +13,7 @@ class MyBackend {
     min_price,
     max_price,
     categories = [],
-  }) {    
+  }) {
     sortby = `${order === "asc" ? "" : "-"}${sortby}`;
     try {
       const response = await fetch(
@@ -340,6 +340,23 @@ class MyBackend {
         },
         body: JSON.stringify({ id }),
       });
+      return resp;
+    } catch (error) {
+      return Response(null, { status: 500 });
+    }
+  }
+
+  async autoComplete(query) {
+    try {
+      const resp = await fetch(
+        `${this.BASE}/api/autocomplete/?query=${query}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
       return resp;
     } catch (error) {
       return Response(null, { status: 500 });
