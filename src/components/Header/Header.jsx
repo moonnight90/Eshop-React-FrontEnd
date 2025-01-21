@@ -1,30 +1,36 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FaShoppingCart } from "react-icons/fa";
 import { FaRegCircleUser } from "react-icons/fa6";
-import { Logo, Burger } from "../index";
+import { Logo } from "../index";
 import { useSelector, useDispatch } from "react-redux";
 import { login, logout } from "../../store/authSlice";
+import { updateSearchQuery } from "../../store/productSlice";
 import myBackend from "../../backend/config";
 import backendAuth from "../../backend/auth";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import SearchIcon from "@mui/icons-material/Search";
 import conf from "../../config/conf";
 import { setCartCount } from "../../store/cartSlice";
+import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
+import NorthWestIcon from "@mui/icons-material/NorthWest";
 
 function Header() {
   const user = useSelector((state) => state.auth);
   const cartCount = useSelector((state) => state.cartCount);
+  const catalog = useSelector((state) => state.catalog);
 
   // States
-  const [showMenu, setShowMenu] = React.useState(false);
-  const [showCats, setShowCats] = React.useState(false);
-  const [totalCartQuantity, setTotalCartQuantity] = React.useState(0);
-  const [suggestion, setSuggestion] = React.useState([]);
+  const [showMenu, setShowMenu] = useState(false);
+  const [showCats, setShowCats] = useState(false);
+  const [suggestion, setSuggestion] = useState([]);
+  const [searchQuery, setSearchQuery] = useState(catalog.q);
+  const [autoCompleteShow, setAutoCompleteShow] = useState(false);
+  const [showSearchPanelMobile, setShowSearchPanelMobile] = useState(false);
   const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
-
+  const abortSignale = useRef(null);
   // Methods
   const handle_logout = () => {
     dispatch(logout());
@@ -33,13 +39,46 @@ function Header() {
     navigate("/");
   };
 
+  const handleSearchQuery = (e) => {
+    if (!autoCompleteShow) setAutoCompleteShow(true);
+    setSearchQuery(e.target.value);
+  };
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+
+    dispatch(updateSearchQuery(searchQuery));
+    navigate(`catalog/?q=${searchQuery}`);
+    setShowSearchPanelMobile(false);
+  };
+
+  useEffect(() => {
+    if (abortSignale.current) {
+      abortSignale.current.abort();
+    }
+    const controller = new AbortController();
+    abortSignale.current = controller;
+    async function get_suggestions(q, abortSignale) {
+      if (q === "") {
+        setSuggestion([]);
+        return;
+      }
+      const resp = await myBackend.autoComplete(q, abortSignale);
+      if (resp.status == 200) {
+        setSuggestion(await resp.json());
+      }
+    }
+
+    get_suggestions(searchQuery);
+  }, [searchQuery]);
+
   // Hooks
-  React.useEffect(() => {
+  useEffect(() => {
     // setShowMenu(false);
     setShowCats(false);
   }, [location]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     async function chnageCartQuantity() {
       const resp = await myBackend.getCart({ quantity_only: 1 });
       if (resp) {
@@ -71,20 +110,79 @@ function Header() {
         <Link to={"/"}>
           <Logo />
         </Link>
+
+        <div className="md:hidden ml-auto mr-4">
+        <SearchIcon
+          sx={{ fontSize: "25px" }}
+          className="ml-auto cursor-pointer"
+          onClick={() => setShowSearchPanelMobile(true)}
+        />
+        </div>
+        {/* SearchPanelMobile */}
+        {showSearchPanelMobile && (
+          <section className="z-20 absolute inset-0 w-screen h-screen bg-white md:hidden">
+            <div className="flex w-full justify-between items-center  p-2">
+              <div
+                className="px-3 cursor-pointer"
+                onClick={() => setShowSearchPanelMobile(false)}
+              >
+                <ArrowBackIosIcon />
+              </div>
+              <input
+                type="search"
+                className="bg-gray-100 outline-none px-2 py-1 w-full "
+                value={searchQuery}
+                onChange={handleSearchQuery}
+                onKeyDown={(e) => {
+                  if (e.keyCode === 27) {
+                    setShowSearchPanelMobile(false);
+                  }
+                }}
+              />
+              <button
+                type="button"
+                className="px-3"
+                onClick={handleSearchSubmit}
+              >
+                <SearchIcon sx={{ fontSize: "20px" }} />
+              </button>
+            </div>
+            <div>
+              {suggestion
+                ? suggestion.map((s) => (
+                    <div
+                      key={s.id}
+                      className="w-[95%] flex m-auto py-2 text-left cursor-pointer hover:bg-gray-200 border-b-2 px-1"
+                      onClick={() => {
+                        navigate(`product/${s.id}`);
+                        setShowSearchPanelMobile(false);
+                      }}
+                    >
+                      <span className="w-[90%]">{s.title}</span>
+                      <div className="text-gray-400 text-balance">
+                        <NorthWestIcon className="m-auto" />
+                      </div>
+                    </div>
+                  ))
+                : ""}
+            </div>
+          </section>
+        )}
+        {/* EndSearchPanelMobile */}
         <div className="flex gap-3 items-center justify-center">
           <Link
             to={user?.is_login ? "/cart" : "/login"}
             className="flex cursor-pointer flex-col items-center justify-center relative md:hidden"
           >
-            {totalCartQuantity != 0 && (
+            {cartCount?.cartCount != 0 && (
               <span
                 className="absolute bg-yellow-400 w-4 h-4 text-xs text-purple-800 bottom-6 left-[14px] rounded-full text-center"
                 style={{ boxShadow: "0px 0px 8px 3px rgba(0, 0, 0, 0.2)" }}
               >
-                {totalCartQuantity}
+                {cartCount?.cartCount}
               </span>
             )}
-            <FaShoppingCart className="h-4 w-4" />
+            <FaShoppingCart className="h-5 w-5" />
             <p className="text-xs">Cart</p>
           </Link>
           <span
@@ -170,19 +268,49 @@ function Header() {
         </div> */}
 
         {/* search Item */}
-        <form className="hidden h-9 w-2/5 items-center gap-1 pl-1 border md:flex relative">
+        <form
+          className="hidden h-9 w-2/5 items-center gap-1 pl-1 border md:flex relative"
+          onSubmit={handleSearchSubmit}
+        >
           <SearchIcon sx={{ fontSize: "20px" }} />
 
           <input
             className="hidden w-11/12 outline-none md:block"
             type="search"
             placeholder="Search"
+            value={searchQuery}
+            onChange={handleSearchQuery}
+            onFocus={() => setAutoCompleteShow(true)}
+            onBlur={() => setAutoCompleteShow(false)}
+            onKeyDown={(e)=>{
+             if(e.keyCode===27)setAutoCompleteShow(false)}}
           />
 
           <button className="ml-auto h-full bg-amber-400 px-4 hover:bg-yellow-300">
             Search
           </button>
-          <div className="absolute top-10 z-20 left-0 w-full min-h-80 bg-slate-100 shadow-2xl"></div>
+          {autoCompleteShow && (
+            <div className="absolute top-10 z-20 left-0 w-full bg-slate-100 shadow-2xl">
+              {suggestion
+                ? suggestion.map((s) => (
+                    <div
+                      key={s.id}
+                      className="w-full text-left cursor-pointer hover:bg-gray-200 border-b-2 px-1"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        console.log("hello");
+                        
+                        // setTimeout(()=>{
+                        //   navigate(`product/${s.id}`);
+                        // },500)
+                      }}
+                    >
+                      {s.title}
+                    </div>
+                  ))
+                : ""}
+            </div>
+          )}
         </form>
 
         <div className="hidden gap-3 md:!flex">
@@ -243,114 +371,6 @@ function Header() {
           </Link>
         </div>
       </header>
-
-      {/*<section
-        className={` fixed top-[64px] z-20 h-screen w-full bg-white transition-all duration-200 ${
-          showMenu ? " right-0" : "-right-[calc(100vw)]"
-        }`}
-      >
-        <div className="mx-auto">
-          <div className="mx-auto flex w-full justify-center gap-3 py-4">
-            <Link
-              to="wishlist"
-              className="flex cursor-pointer flex-col items-center justify-center"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth="1.5"
-                stroke="currentColor"
-                className="h-6 w-6"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
-                />
-              </svg>
-
-              <p className="text-xs">Wishlist</p>
-            </Link>
-
-            <Link
-              to={user?.is_login ? "/cart" : "/login"}
-              className="flex cursor-pointer flex-col items-center justify-center relative"
-            >
-              {totalCartQuantity != 0 && (
-                <span
-                  className="absolute bg-yellow-400 w-5 h-5 text-sm text-purple-800 bottom-8 left-4 rounded-full text-center"
-                  style={{ boxShadow: "0px 0px 8px 3px rgba(0, 0, 0, 0.2)" }}
-                >
-                  {totalCartQuantity}
-                </span>
-              )}
-              <FaShoppingCart className="h-6 w-6" />
-              <p className="text-xs">Cart</p>
-            </Link>
-
-            <Link
-              to={user.is_login ? "/account" : "/login"}
-              className="relative flex cursor-pointer flex-col items-center justify-center"
-            >
-              <span className="h-6 w-6">
-                {user.is_login ? (
-                  <img
-                    src={`http://localhost:8000${user?.user?.image}`}
-                    alt="profile"
-                    className="w-full h-full rounded-full object-cover"
-                  />
-                ) : (
-                  <FaRegCircleUser className="w-full h-full" />
-                )}
-              </span>
-              <p className="text-xs">Account</p>
-              <ul className=""></ul>
-            </Link>
-          </div>
-
-          <ul className="text-center font-medium">
-            <li className="py-2">
-              <Link to={"/"}>Home</Link>
-            </li>
-            <li className="py-2">
-              <Link to="catalog">Catalog</Link>
-            </li>
-            <li className="py-2">
-              <Link href="aboutus">About Us</Link>
-            </li>
-            <li className="py-2">
-              <Link href="contactus">Contact Us</Link>
-            </li>
-          </ul>
-        </div>
-        <div className="flex justify-center mt-7">
-          {user?.is_login ? (
-            <button
-              onClick={() => handle_logout()}
-              className="py-2 px-4 bg-red-800 text-white"
-            >
-              Logout
-            </button>
-          ) : (
-            <>
-              <Link
-                to={"/login"}
-                className="py-2 px-4 bg-indigo-800 text-white"
-              >
-                Login
-              </Link>
-              <Link
-                to={"/signup"}
-                className="py-2 ml-4 px-4 bg-indigo-800 text-white"
-              >
-                Signup
-              </Link>
-            </>
-          )}
-        </div>
-      </section>
-      */}
       <nav className="relative bg-violet-900">
         <div className="mx-auto hidden h-12 w-full max-w-[1200px] items-center md:flex">
           <button

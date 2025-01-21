@@ -13,17 +13,22 @@ class MyBackend {
     min_price,
     max_price,
     categories = [],
+    q = null,
   }) {
+    
+    const params = [];
+    if (limit) params.push(`limit=${limit}`);
+    if (page) params.push(`page=${page}`);
+    if (sortby) params.push(`ordering=${sortby}`);
+    if (categories.length) params.push(`category=${categories.join("&category=")}`);
+    if (min_price) params.push(`min_price=${min_price}`);
+    if (max_price) params.push(`max_price=${max_price}`);
+    if (q) params.push(`search=${q}`);
+
     sortby = `${order === "asc" ? "" : "-"}${sortby}`;
     try {
       const response = await fetch(
-        `${
-          this.BASE
-        }/api/products/?limit=${limit}&page=${page}&ordering=${sortby}${
-          categories.length ? `&category=${categories.join("&category=")}` : ""
-        }${min_price ? `&min_price=${min_price}` : ""}${
-          max_price ? `&max_price=${max_price}` : ""
-        }`
+        `${this.BASE}/api/products/${params.length?`?${params.join('&')}`:""}`
       );
       return await response.json();
     } catch (err) {
@@ -346,11 +351,12 @@ class MyBackend {
     }
   }
 
-  async autoComplete(query) {
+  async autoComplete(query, controleSignal) {
     try {
       const resp = await fetch(
         `${this.BASE}/api/autocomplete/?query=${query}`,
         {
+          signal: controleSignal,
           method: "GET",
           headers: {
             "Content-Type": "application/json",

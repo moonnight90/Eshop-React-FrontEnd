@@ -10,6 +10,7 @@ const initialState = {
     order: "asc",
   },
   page: 1,
+  q: "",
 };
 
 const productSlice = createSlice({
@@ -29,6 +30,9 @@ const productSlice = createSlice({
     updatePage: (state, action) => {
       state.page = action.payload;
     },
+    updateSearchQuery: (state, action) => {
+      state.q = action.payload;
+    },
     reset: (state, action) => {
       state.filters = {
         categories: [],
@@ -39,6 +43,7 @@ const productSlice = createSlice({
         order: "asc",
       };
       state.page = 1;
+      state.q = "";
     },
   },
 });
@@ -48,6 +53,7 @@ export const {
   updatePage,
   updatePrice,
   updateOrdering,
+  updateSearchQuery,
   reset,
 } = productSlice.actions;
 

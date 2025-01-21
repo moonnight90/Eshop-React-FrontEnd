@@ -28,6 +28,7 @@ const Products = ({ limit = 12, pagination = true, sortby, order }) => {
         categories: catalog?.filters?.categories,
         min_price: catalog?.filters?.price[0],
         max_price: catalog?.filters?.price[1],
+        q: catalog?.q
       });
 
       if (pagination) {

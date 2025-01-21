@@ -1,18 +1,10 @@
-import React, {
-  Suspense,
-  createRef,
-  lazy,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { Suspense, lazy, useCallback, useEffect, useState } from "react";
 import myBackend from "../backend/config";
 import { Link, useSearchParams } from "react-router-dom";
 import { Skeleton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
-import { PriceInputFilter, Input } from "../components";
+import { PriceInputFilter, Input, Logo } from "../components";
 import { useSelector, useDispatch } from "react-redux";
 import SortIcon from "@mui/icons-material/Sort";
 import {
@@ -21,6 +13,7 @@ import {
   updateOrdering,
   updatePage,
   updatePrice,
+  updateSearchQuery,
 } from "../store/productSlice";
 // Lazy load the Products component
 const Products = lazy(() => import("../components/Products"));
@@ -49,7 +42,7 @@ function Catalog() {
     async function fetchCategories() {
       try {
         const cats = await myBackend.categories();
-        setCategories(cats);
+        setCategories(cats.sort((a, b) => b.products_count - a.products_count));
       } catch (error) {
         console.error("Failed to fetch categories:", error);
         setCategories([]);
@@ -58,6 +51,9 @@ function Catalog() {
 
     // Loading params values from url to State
     dispatch(reset());
+
+    const search_q = getQueryparams("q");
+    search_q && dispatch(updateSearchQuery(search_q));
 
     const categories_str = getQueryparams("cat", (val) => val.split(","));
     categories_str && dispatch(updateCategories(categories_str));
@@ -110,6 +106,8 @@ function Catalog() {
       (temp_params_obj["sort_by"] = catalog?.ordering?.sort_by);
     catalog?.ordering?.order &&
       (temp_params_obj["order"] = catalog?.ordering?.order);
+
+    catalog?.q && (temp_params_obj["q"] = catalog?.q);
 
     setParams(temp_params_obj);
   }, [catalog]);
@@ -230,16 +228,16 @@ function Catalog() {
         {/* Desktop View-End */}
         {/* Mobile View */}
         <section
-          className={`md:hidden fixed top-0 bg-gray-100 z-10 w-[300px] h-screen p-6 transition-all duration-500 ease-in-out ${
+          className={`md:hidden fixed top-0 bg-gray-100 z-10 w-[300px] h-screen transition-all duration-500 ease-in-out ${
             showFilters ? "left-0" : "-left-80"
           }
            shadow-2xl
           `}
         >
-          <div className="flex">
-            <div className="text-purple-700 font-bold text-xl w-[90%]">
-              Filters
-            </div>
+          <div className="h-16 w-full flex items-center px-5">
+            <Link to={"/"} className="">
+              <Logo />
+            </Link>
             <button
               className="m-auto absolute top-4 right-4 text-gray-800 text-2xl"
               onClick={() => setShowFilters(false)}
@@ -247,49 +245,58 @@ function Catalog() {
               <CloseIcon fontSize="inherit" />
             </button>
           </div>
-          <p className="mt-3 mb-3 font-semibold text-gray-700 ">CATEGORIES</p>
-          <div className="h-96 overflow-y-auto ">
-            {categories === false ? (
-              <>
-                {Array.from({ length: 10 }).map((_, i) => (
-                  <Skeleton
-                    key={i}
-                    variant="text"
-                    animation="wave"
-                    width="100%"
-                    height={"35px"}
-                  />
-                ))}
-              </>
-            ) : (
-              categories.map((category) => (
-                <div className="flex w-full justify-between" key={category?.id}>
-                  <div className="flex justify-center items-center">
-                    <input
-                      type="checkbox"
-                      value={category?.name}
-                      onChange={handleCategory}
-                      checked={catalog?.filters?.categories?.includes(
-                        category?.name
-                      )}
+
+          <div className="px-4 py-1 mt-2">
+            <div className="text-purple-700 font-bold text-xl w-[90%]">
+              Filters
+            </div>
+            <p className="mt-3 font-semibold text-gray-700 ">CATEGORIES</p>
+            <div className="h-96 overflow-y-auto ">
+              {categories === false ? (
+                <>
+                  {Array.from({ length: 10 }).map((_, i) => (
+                    <Skeleton
+                      key={i}
+                      variant="text"
+                      animation="wave"
+                      width="100%"
+                      height={"35px"}
                     />
-                    <p className="ml-4 text-gray-700 font-normal">
-                      {category?.name.charAt(0).toUpperCase() +
-                        category?.name.slice(1).toLowerCase()}
-                    </p>
+                  ))}
+                </>
+              ) : (
+                categories.map((category) => (
+                  <div
+                    className="flex w-full justify-between"
+                    key={category?.id}
+                  >
+                    <div className="flex justify-center items-center">
+                      <input
+                        type="checkbox"
+                        value={category?.name}
+                        onChange={handleCategory}
+                        checked={catalog?.filters?.categories?.includes(
+                          category?.name
+                        )}
+                      />
+                      <p className="ml-4 text-gray-700 font-normal">
+                        {category?.name.charAt(0).toUpperCase() +
+                          category?.name.slice(1).toLowerCase()}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500">
+                        ({category?.products_count})
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-gray-500">
-                      ({category?.products_count})
-                    </p>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-          <div className="">
-            <p className="mt-3 font-medium">Price</p>
-            <PriceInputFilter />
+                ))
+              )}
+            </div>
+            <div className="">
+              <p className="mt-4 font-medium">PRICE</p>
+              <PriceInputFilter />
+            </div>
           </div>
         </section>
         {/* Filters-End */}
