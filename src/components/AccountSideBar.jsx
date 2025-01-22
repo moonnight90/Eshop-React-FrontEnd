@@ -21,7 +21,7 @@ function AccountSideBar({ selected }) {
           <div className="flex items-center">
             <img
               className="rounded-full object-cover h-10 w-10"
-              src={`${conf.BACKEND_DOMAIN}${user?.user.image}`}
+              src={`${user?.user.image}`}
               alt="profile image"
             />
             <div className="ml-5 flex gap-1">

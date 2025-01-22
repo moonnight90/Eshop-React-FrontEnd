@@ -72,7 +72,7 @@ function Pdc({ product, showMessage, setShowMessage, setSnackBarMessage }) {
           <LazyLoad height={200} offset={100} className="w-full">
             <img
               className="h-48 w-full object-contain z-50"
-              src={`${conf.BACKEND_DOMAIN}/${
+              src={`${
                 product?.imgs && product?.imgs[0]
               }`}
               alt="product image"

@@ -112,11 +112,11 @@ function Header() {
         </Link>
 
         <div className="md:hidden ml-auto mr-4">
-        <SearchIcon
-          sx={{ fontSize: "25px" }}
-          className="ml-auto cursor-pointer"
-          onClick={() => setShowSearchPanelMobile(true)}
-        />
+          <SearchIcon
+            sx={{ fontSize: "25px" }}
+            className="ml-auto cursor-pointer"
+            onClick={() => setShowSearchPanelMobile(true)}
+          />
         </div>
         {/* SearchPanelMobile */}
         {showSearchPanelMobile && (
@@ -192,7 +192,7 @@ function Header() {
             <span className="h-7 w-7">
               {user.is_login ? (
                 <img
-                  src={`${conf.BACKEND_DOMAIN}${user?.user?.image}`}
+                  src={`${user?.user?.image}`}
                   alt="profile"
                   className="w-full h-full rounded-full object-cover"
                 />
@@ -282,8 +282,9 @@ function Header() {
             onChange={handleSearchQuery}
             onFocus={() => setAutoCompleteShow(true)}
             onBlur={() => setAutoCompleteShow(false)}
-            onKeyDown={(e)=>{
-             if(e.keyCode===27)setAutoCompleteShow(false)}}
+            onKeyDown={(e) => {
+              if (e.keyCode === 27) setAutoCompleteShow(false);
+            }}
           />
 
           <button className="ml-auto h-full bg-amber-400 px-4 hover:bg-yellow-300">
@@ -295,17 +296,23 @@ function Header() {
                 ? suggestion.map((s) => (
                     <div
                       key={s.id}
-                      className="w-full text-left cursor-pointer hover:bg-gray-200 border-b-2 px-1"
-                      onClick={(e) => {
+                      className="w-full flex text-left py-1 px-2 cursor-pointer hover:bg-gray-200 border-b-2"
+                      onMouseDown={(e) => {
                         e.preventDefault();
-                        console.log("hello");
-                        
-                        // setTimeout(()=>{
-                        //   navigate(`product/${s.id}`);
-                        // },500)
+                        setAutoCompleteShow(false);
+                        navigate(`product/${s.id}`);
                       }}
                     >
-                      {s.title}
+                      <span className="w-[95%]">{s.title}</span>
+                      <div
+                        onMouseDown={(e) => {
+                          e.stopPropagation();
+
+                          setSearchQuery(s.title);
+                        }}
+                      >
+                        <NorthWestIcon className="text-gray-400 " />
+                      </div>
                     </div>
                   ))
                 : ""}
@@ -359,7 +366,7 @@ function Header() {
             <span className="h-6 w-6">
               {user.is_login ? (
                 <img
-                  src={`http://localhost:8000${user?.user?.image}`}
+                  src={`${user?.user?.image}`}
                   alt="profile"
                   className="w-full h-full rounded-full object-cover"
                 />

@@ -4,12 +4,13 @@ import {
   NavigationBar,
   Input,
   LoadingScreen,
+  LoadingAnimation
 } from "../components";
 import { login } from "../store/authSlice";
 import { useSelector, useDispatch } from "react-redux";
 import { useForm } from "react-hook-form";
 import backendAuth from "../backend/auth";
-import conf from "../config/conf";
+
 
 function ProfileInformation() {
   // States
@@ -50,6 +51,7 @@ function ProfileInformation() {
   };
   return (
     <>
+    <LoadingAnimation />
       {updating && <LoadingScreen />}
       <NavigationBar value={"Profile Information"} />
       <div className="container flex-grow mx-auto max-w-[1200px] border-b py-5 md:flex md:flex-row md:py-10">
@@ -68,7 +70,7 @@ function ProfileInformation() {
                       className="h-20 w-20 rounded-full object-cover min-w-20 min-h-20"
                       src={
                         srcImage ||
-                        `${conf.BACKEND_DOMAIN}${user?.user?.image}`
+                        `${user?.user?.image}`
                       }
                       alt={`profile image`}
                       
