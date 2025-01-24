@@ -51,7 +51,6 @@ function ProfileInformation() {
   };
   return (
     <>
-    <LoadingAnimation />
       {updating && <LoadingScreen />}
       <NavigationBar value={"Profile Information"} />
       <div className="container flex-grow mx-auto max-w-[1200px] border-b py-5 md:flex md:flex-row md:py-10">

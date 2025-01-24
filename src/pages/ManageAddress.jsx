@@ -4,6 +4,7 @@ import {
   NavigationBar,
   AddressCard,
   UpdateAddress,
+  LoadingScreen,
 } from "../components";
 import { useSelector } from "react-redux";
 import myBackend from "../backend/config";
@@ -12,11 +13,14 @@ function ManageAddress() {
   const [address, setAddress] = useState([]);
   const [updatingAddress, setUpdatingAddress] = useState(false);
   const user = useSelector((auth) => auth.auth);
+  const [loading,setLoading] = useState(true);
 
   // methods
   const fetchAddress = useCallback(async () => {
+    setLoading(true);
     let addresses = await myBackend.addressbook(user?.user_token);
     setAddress(await addresses);
+    setLoading(false);
   }, []);
 
   // Hooks
@@ -26,6 +30,7 @@ function ManageAddress() {
 
   return (
     <>
+    {loading && <LoadingScreen />}
       <NavigationBar value={"Manage Address"} />
       <div className="container flex-grow mx-auto min-h-96 max-w-[1200px] py-5 md:flex md:flex-row md:py-10 relative">
         {address.length < 3 && (
@@ -40,7 +45,7 @@ function ManageAddress() {
         )}
         <AccountSideBar selected={2} />
         {!updatingAddress ? (
-          address.length ? (
+          (address.length || loading) ? (
             <section className="grid w-full max-w-[1200px] grid-cols-1 grid-rows-2 gap-3 px-5 pb-10 md:grid-cols-2 lg:grid-cols-3">
               {address.map((v) => (
                 <AddressCard
