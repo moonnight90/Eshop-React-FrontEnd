@@ -17,6 +17,17 @@ const forgotPassSlice = createSlice({
     name: "forgotPass",
     initialState,
     reducers: {
+        reset: (state,action)=>{
+            state.forgotPass= false
+            state.email= ""
+            state.otp_sent= false
+            state.otp_verified= false
+            state.otp= ""
+            state.otp_error= ""
+            state.otp_loading= false
+            state.password= ""
+            state.password_error= ""
+        },
         setEmail: (state, action) => {
             state.email = action.payload;
         },
@@ -48,6 +59,7 @@ const forgotPassSlice = createSlice({
 });
 
 export const {
+    reset,
     setEmail,
     setForgotPass,
     setOtpSent,

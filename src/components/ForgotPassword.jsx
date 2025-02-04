@@ -1,26 +1,46 @@
 import React, { useCallback, useState } from "react";
-import Input from "./Input";
+import { Input, SnackBar } from "./index";
 import myBackend from "../backend/config";
-import { useSelector, useDispatch } from "react-redux";
-import { setForgotPass, setOtpSent } from "../store/forgotPassSlice";
+import { useDispatch } from "react-redux";
+import {
+  setForgotPass,
+  setOtpSent,
+  setEmail as setStateEmail,
+} from "../store/forgotPassSlice";
 
 function ForgotPassword() {
   // States
   const [email, setEmail] = useState("");
   const dispatch = useDispatch();
+  const [showMessage, setShowMessage] = useState(false);
+  const [message, setMessage] = useState("");
 
   // Methods
   const handleForgotPassword = async () => {
-    console.log(email);
-
     const resp = await myBackend.reset_password(email);
     if (resp.status === 202) {
       dispatch(setOtpSent(true));
-    } else {}
+      dispatch(setStateEmail(email));
+      setMessage("OTP sent ...");
+    } else if (resp.status === 404 || resp.status === 422) {
+      const json_resp = await resp.json();
+      setMessage(`${json_resp?.msg} ...`);
+    } else {
+      setMessage("Unexpected error occur ...");
+    }
+
+    setShowMessage(true);
   };
 
   return (
     <>
+      {/* snack-bar to show messages */}
+      <SnackBar
+        showMessage={showMessage}
+        setShowMessage={setShowMessage}
+        message={message}
+      />
+
       <div
         onClick={() => dispatch(setForgotPass(false))}
         className="fixed inset-0 z-10 flex items-center justify-center bg-gray-900 bg-opacity-50 p-5"

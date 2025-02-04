@@ -10,7 +10,7 @@ const SnackBar = ({ showMessage, setShowMessage, message }) => {
 
   return (
     <div
-      className={`fixed bottom-4 z-10 right-4 to-purple-800 bg-gradient-to-r from-purple-600 text-white text-sm shadow-lg p-4 flex items-center space-x-4 transition-all decoration-purple-200 ease-out transform 
+      className={`fixed bottom-4 z-30 right-4 to-purple-800 bg-gradient-to-r from-purple-600 text-white text-sm shadow-lg p-4 flex items-center space-x-4 transition-all decoration-purple-200 ease-out transform 
         ${
           showMessage
             ? "translate-x-0 opacity-100"

@@ -387,7 +387,7 @@ class MyBackend {
   }
   async confirm_reset_password(email,otp,password){
     try {
-      const resp = await fetch(`${this.BASE}/api/confirm_reset_password/`, {
+      const resp = await fetch(`${this.BASE}/api/reset_password_confirm/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -395,7 +395,7 @@ class MyBackend {
         body: JSON.stringify({
           email: email,
           otp:otp,
-          password:password,
+          new_password:password,
         }),
       });
       return resp;
