@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { FoForgotPassword, Input } from "./index";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
@@ -6,20 +6,22 @@ import { login, logout } from "../store/authSlice";
 import backendAuth from "../backend/auth";
 import { Link } from "react-router-dom";
 import OtpInputField from "./OtpInputField";
-import { setForgotPass } from "../store/forgotPassSlice";
+import { setForgotPass, setOtp } from "../store/forgotPassSlice";
+import { useState } from "react";
 function Login() {
   const dispatch = useDispatch();
   const { register, handleSubmit } = useForm();
   const [loginLoading, setLoginLoading] = React.useState(false);
   const [loginError, setLoginErrors] = React.useState(false);
+  const [otpL, setOtpL] = useState([]);
 
   const forgotPassState = useSelector((state) => state.forgotPass);
 
-  /*
+  const verifyOtp = ()=>{
+    
+  }
 
-    Django Backend
-
-  */
+  // Django Backend
 
   const backendLogin = async (data) => {
     setLoginLoading(!loginLoading);
@@ -43,7 +45,16 @@ function Login() {
 
   return (
     <>
-      {forgotPassState?.forgotPass==true && <FoForgotPassword />}
+      {forgotPassState?.otp_sent == false && (
+        <div className="fixed inset-0 z-10 flex items-center justify-center bg-gray-900 bg-opacity-50 p-5">
+          <div className=" p-5 bg-white">
+          <h1 className="text-2xl text-violet-900">OTP</h1>
+          <OtpInputField otp={otpL} setOtp={setOtpL} className="mt-4" />
+          <button className="mt-4 px-4 py-2 bg-amber-500 text-gray-800" onClick={verifyOtp}>Verify OTP</button>
+          </div>
+        </div>
+      )}
+      {forgotPassState?.forgotPass == true && <FoForgotPassword />}
       <section className="mx-auto flex-grow w-full mt-10 mb-10 max-w-[1200px] px-5">
         <div className="container mx-auto border px-5 py-5 shadow-sm md:w-1/2">
           <div className="">

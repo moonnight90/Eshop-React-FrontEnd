@@ -16,10 +16,7 @@ function ForgotPassword() {
     const resp = await myBackend.reset_password(email);
     if (resp.status === 202) {
       dispatch(setOtpSent(true));
-      alert("OTP Sent to your email");
-    } else {
-      alert("Invalid Email");
-    }
+    } else {}
   };
 
   return (

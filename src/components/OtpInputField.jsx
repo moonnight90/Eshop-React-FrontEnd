@@ -1,9 +1,18 @@
 import React from "react";
 
-function OtpInputField({ length = 6,otp, setOtp }) {
+function OtpInputField({ length = 6,otp, setOtp, className }) {
+  // States
   const [cursor, setCursor] = React.useState(0);
-
   const refs = React.useRef([]);
+  // Methods
+
+  const handlePaste = (e)=>{
+    e.preventDefault();
+    const data = e.clipboardData.getData("text");
+    if (data=="") return null;
+    setOtp(data.split('').slice(0,6));
+    setCursor(data.length>6?5:data.length-1);
+  }
 
   const handleChange = (e, index) => {
     setOtp((oldOtp) => {
@@ -45,7 +54,7 @@ function OtpInputField({ length = 6,otp, setOtp }) {
   }, [cursor]);
 
   return (
-    <div className="flex gap-2 justify-center items-center">
+    <div className={`flex gap-2 justify-center items-center ${className}`} onPaste={handlePaste}>
       {Array.from({ length: length }).map((_, i) => {
         return (
           <input
