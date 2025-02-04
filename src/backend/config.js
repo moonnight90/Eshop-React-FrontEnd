@@ -368,6 +368,42 @@ class MyBackend {
       return Response(null, { status: 500 });
     }
   }
+  async reset_password(email){
+    try {
+      const resp = await fetch(`${this.BASE}/api/reset_password/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: email,
+        }),
+      });
+      return resp;
+      
+    } catch (error) {
+     return new Response(null, { status: 500 }); 
+    }
+  }
+  async confirm_reset_password(email,otp,password){
+    try {
+      const resp = await fetch(`${this.BASE}/api/confirm_reset_password/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: email,
+          otp:otp,
+          password:password,
+        }),
+      });
+      return resp;
+      
+    } catch (error) {
+     return new Response(null, { status: 500 }); 
+    }
+  }
 }
 
 const myBackend = new MyBackend();

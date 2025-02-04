@@ -26,6 +26,13 @@ function Product() {
     const data = await myBackend.getProduct({ id });
     setProduct(data);
   };
+  const addDimensionsTransformationToUrl = (url,h,w)=>{
+    if (!url) return url;
+    const splited = url.split('upload');
+    
+    return `${splited[0]}upload/w_${w},h_${h}${splited[1]}`;
+    
+  }
 
   const addCartHandle = async () => {
     if (!user.is_login) {
@@ -104,7 +111,7 @@ function Product() {
             <div className=" flex justify-center flex-col items-center overflow-hidden">
               <img
                 className="cursor-pointer border-solid border-2 object-contain h-96 w-96"
-                src={`${conf.BACKEND_DOMAIN}${product?.imgs[currentImg]}`}
+                src={addDimensionsTransformationToUrl(product?.imgs[currentImg],500,500)}
                 alt=""
               />
 
@@ -119,7 +126,7 @@ function Product() {
                   >
                     <img
                       className="cursor-pointer object-contain max-w-full max-h-full"
-                      src={`${conf.BACKEND_DOMAIN}${img}`}
+                      src={addDimensionsTransformationToUrl(img,100,100)}
                       alt={`image_${i}`}
                     />
                   </div>

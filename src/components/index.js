@@ -24,6 +24,7 @@ import Burger from "./Burger";
 import OrderOverview from "./OrderOverview";
 import PriceInputFilter from "./PriceInputFilter";
 import LoadingAnimation from "./LoadingAnimation";
+import FoForgotPassword from "./ForgotPassword";
 export {
   Header,
   Footer,
@@ -51,4 +52,5 @@ export {
   OrderOverview,
   PriceInputFilter,
   LoadingAnimation,
+  FoForgotPassword
 };

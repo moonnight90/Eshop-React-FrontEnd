@@ -14,6 +14,16 @@ function Pdc({ product, showMessage, setShowMessage, setSnackBarMessage }) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
+  // Methods
+  const addDimensionsTransformationToUrl = (url,h,w)=>{
+    if (!url) return url;
+    const splited = url.split('upload');
+    
+    return `${splited[0]}upload/h_${h}${splited[1]}`;
+    
+  }
+  
+  // Hooks
   useEffect(() => {
     if (product) {
       setLoading(false);
@@ -72,15 +82,12 @@ function Pdc({ product, showMessage, setShowMessage, setSnackBarMessage }) {
           <LazyLoad height={200} offset={100} className="w-full">
             <img
               className="h-48 w-full object-contain z-50"
-              src={`${
-                product?.imgs && product?.imgs[0]
-              }`}
+              src={addDimensionsTransformationToUrl(product?.imgs[0],200,200)}
               alt="product image"
               // onLoad={() => setLoading(false)}
               loading="lazy"
             />
           </LazyLoad>
-
           <div className="absolute flex h-full w-full items-center justify-center gap-3 opacity-0 duration-150 hover:opacity-100">
             <Link to={`/product/${product.id}`}>
               <span className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-amber-400">
@@ -114,7 +121,6 @@ function Pdc({ product, showMessage, setShowMessage, setSnackBarMessage }) {
               </svg>
             </span>
           </div>
-
           <div className="absolute right-1 mt-3 flex items-center justify-center bg-amber-400">
             <p className="px-2 py-2 text-sm">− {product?.discount}% OFF</p>
           </div>
