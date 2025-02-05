@@ -1,9 +1,8 @@
 import { createBrowserRouter } from "react-router-dom";
 import App from "../App";
-import { Login, Signup, AuthLayout, ImageZoomOwn } from "../components";
+import { Login, Signup, AuthLayout } from "../components";
 import Home from "../pages/Home";
 import Product from "../pages/Product";
-import Category from "../pages/Category";
 import ProfileInformation from "../pages/ProfileInformation";
 import ManageAddress from "../pages/ManageAddress";
 import Catalog from "../pages/Catalog";
@@ -13,6 +12,7 @@ import PlaceOrder from "../pages/PlaceOrder";
 import OrderConfirm from "../pages/OrderConfirm";
 import OrderHistroy from "../pages/OrderHistroy";
 import Wishlist from "../pages/Wishlist";
+import ContactUs from "../pages/ContactUs";
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -42,10 +42,7 @@ export const router = createBrowserRouter([
         path: "product/:id",
         element: <Product />,
       },
-      {
-        path: "cat/:cat",
-        element: <Category />,
-      },
+
       {
         path: "account",
         element: (
@@ -84,19 +81,27 @@ export const router = createBrowserRouter([
       },
       {
         path: "place-order",
-        element: <AuthLayout authenticated={true}><PlaceOrder /></AuthLayout>
+        element: (
+          <AuthLayout authenticated={true}>
+            <PlaceOrder />
+          </AuthLayout>
+        ),
       },
       {
         path: "order-confirm",
-        element: <OrderConfirm />
+        element: <OrderConfirm />,
       },
       {
         path: "order-history",
-        element: <OrderHistroy />
+        element: <OrderHistroy />,
       },
       {
         path: "wishlist",
-        element: <Wishlist />
+        element: <Wishlist />,
+      },
+      {
+        path: "contact-us",
+        element: <ContactUs />
       }
     ],
   },

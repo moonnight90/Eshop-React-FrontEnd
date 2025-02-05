@@ -3,7 +3,6 @@ import { logout } from "../store/authSlice";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
-import conf from "../config/conf";
 import SecurityIcon from "@mui/icons-material/Security";
 import HomeIcon from "@mui/icons-material/Home";
 function AccountSideBar({ selected }) {

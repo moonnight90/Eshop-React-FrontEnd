@@ -10,7 +10,6 @@ import myBackend from "../../backend/config";
 import backendAuth from "../../backend/auth";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import SearchIcon from "@mui/icons-material/Search";
-import conf from "../../config/conf";
 import { setCartCount } from "../../store/cartSlice";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import NorthWestIcon from "@mui/icons-material/NorthWest";
@@ -32,6 +31,14 @@ function Header() {
   const navigate = useNavigate();
   const abortSignale = useRef(null);
   // Methods
+
+  const addDimensionsTransformationToUrl = (url, h, w) => {
+    if (!url) return url;
+    const splited = url.split("upload");
+
+    return `${splited[0]}upload/w_${w},h_${h}${splited[1]}`;
+  };
+
   const handle_logout = () => {
     dispatch(logout());
     setShowMenu(false);
@@ -192,7 +199,11 @@ function Header() {
             <span className="h-7 w-7">
               {user.is_login ? (
                 <img
-                  src={`${user?.user?.image}`}
+                  src={addDimensionsTransformationToUrl(
+                    user?.user?.image,
+                    100,
+                    100
+                  )}
                   alt="profile"
                   className="w-full h-full rounded-full object-cover"
                 />
@@ -209,40 +220,58 @@ function Header() {
             `}
               >
                 <ul className=" min-w-48 p-2">
-                  <Link to="account">
-                    <li className="px-5 py-2 hover:text-yellow-500">Profile</li>
-                  </Link>
+                  {user.is_login && (
+                    <>
+                      <Link to="account">
+                        <li className="px-5 py-2 hover:text-yellow-500">
+                          Profile
+                        </li>
+                      </Link>
+                      <Link to="wishlist">
+                        <li className="px-5 py-2 hover:text-yellow-500">
+                          Wishlist
+                        </li>
+                      </Link>
+                      <Link to="manage-address">
+                        <li className="px-5 py-2 hover:text-yellow-500">
+                          Manage Address
+                        </li>
+                      </Link> 
+                      <Link to="order-history">
+                        <li className="px-5 py-2 hover:text-yellow-500">
+                          Orders
+                        </li>
+                      </Link>
+                      <Link to="change-password">
+                        <li className="px-5 py-2 hover:text-yellow-500">
+                          Change Password
+                        </li>
+                      </Link>
+                      <hr />
+                    </>
+                  )}
+
                   <Link to="catalog">
                     <li className="px-5 py-2 hover:text-yellow-500">Catalog</li>
                   </Link>
-                  <Link to="wishlist">
-                    <li className="px-5 py-2 hover:text-yellow-500">
-                      Wishlist
-                    </li>
-                  </Link>
-                  <Link to="">
-                    <li className="px-5 py-2 hover:text-yellow-500">
-                      About us
-                    </li>
-                  </Link>
-                  <Link to="">
+
+                  <Link to="contact-us">
                     <li className="px-5 py-2 hover:text-yellow-500">
                       Contact us
                     </li>
                   </Link>
-                  <Link to="manage-address">
-                    <li className="px-5 py-2 hover:text-yellow-500">
-                      Manage Address
-                    </li>
-                  </Link>
-                  <Link to="change-password">
-                    <li className="px-5 py-2 hover:text-yellow-500">
-                      Change Password
-                    </li>
-                  </Link>
-                  <Link>
-                    <li className="px-5 py-2 hover:text-yellow-500">Logout</li>
-                  </Link>
+                  <hr />
+                  {user.is_login ? (
+                    <Link onClick={() => dispatch(logout())}>
+                      <li className="px-5 py-2 hover:text-yellow-500">
+                        Logout
+                      </li>
+                    </Link>
+                  ) : (
+                    <Link to={"/login"}>
+                      <li className="px-5 py-2 hover:text-yellow-500">Login</li>
+                    </Link>
+                  )}
                 </ul>
               </menu>
             }
@@ -366,7 +395,11 @@ function Header() {
             <span className="h-6 w-6">
               {user.is_login ? (
                 <img
-                  src={`${user?.user?.image}`}
+                  src={addDimensionsTransformationToUrl(
+                    user?.user?.image,
+                    100,
+                    100
+                  )}
                   alt="profile"
                   className="w-full h-full rounded-full object-cover"
                 />
@@ -379,8 +412,8 @@ function Header() {
         </div>
       </header>
       <nav className="relative bg-violet-900">
-        <div className="mx-auto hidden h-12 w-full max-w-[1200px] items-center md:flex">
-          <button
+        <div className="mx-auto hidden h-12 w-full max-w-[1200px] justify-center items-center items-center md:flex">
+          {/* <button
             className="ml-5 flex h-full w-40 cursor-pointer items-center justify-center bg-amber-400"
             onClick={() => setShowCats(!showCats)}
           >
@@ -401,7 +434,7 @@ function Header() {
               </svg>
               All categories
             </div>
-          </button>
+          </button> */}
 
           <div className="mx-7 flex gap-8">
             <Link
@@ -416,12 +449,7 @@ function Header() {
             >
               Catalog
             </Link>
-            <Link
-              className="font-light text-white duration-100 hover:text-yellow-400 hover:underline"
-              to="about-us"
-            >
-              About Us
-            </Link>
+
             <Link
               className="font-light text-white duration-100 hover:text-yellow-400 hover:underline"
               to="contact-us"
@@ -429,31 +457,7 @@ function Header() {
               Contact Us
             </Link>
           </div>
-          {!user?.is_login ? (
-            <div className="ml-auto flex gap-4 px-5">
-              <Link
-                className="font-light text-white duration-100 hover:text-yellow-400 hover:underline"
-                to={"/login"}
-              >
-                Login
-              </Link>
-
-              <span className="text-white">&#124;</span>
-
-              <Link
-                className="font-light text-white duration-100 hover:text-yellow-400 hover:underline"
-                to={"/signup"}
-              >
-                Sign Up
-              </Link>
-            </div>
-          ) : (
-            <div className="ml-auto flex gap-4 px-5">
-              <button onClick={handle_logout} className="text-white">
-                Logout
-              </button>
-            </div>
-          )}
+          
         </div>
       </nav>
       {/* <!-- /Nav bar --> */}

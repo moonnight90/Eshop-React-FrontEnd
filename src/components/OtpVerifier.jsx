@@ -1,8 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import { OtpInputField } from "./";
 const OtpVerifier = ({ handleClose, isOpen, confirmOTP, retires }) => {
   if (!isOpen) return null;
-  const [otp, setOtp] = React.useState(Array(6).fill(""));
+  const [otp, setOtp] = useState(Array(6).fill(""));
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 ">

@@ -3,7 +3,6 @@ import { AccountSideBar, NavigationBar, SnackBar } from "../components";
 import myBackend from "../backend/config";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import conf from "../config/conf";
 import { setCartCount } from "../store/cartSlice";
 
 function Wishlist() {
@@ -55,6 +54,12 @@ function Wishlist() {
       setShowMessage(true);
     }
   });
+  const addDimensionsTransformationToUrl = (url, h, w) => {
+    if (!url) return url;
+    const splited = url.split("upload");
+
+    return `${splited[0]}upload/w_${w},h_${h}${splited[1]}`;
+  };
 
   //hooks
   useEffect(() => {
@@ -86,7 +91,7 @@ function Wishlist() {
                   <div className="relative flex justify-center">
                     <img
                       className="object-contain w-full aspect-square"
-                      src={`${conf.BACKEND_DOMAIN}${item?.product?.imgs?.[0]}`}
+                      src={addDimensionsTransformationToUrl(item?.product?.imgs?.[0],500,500)}
                       alt="Image"
                     />
                     <div className="absolute flex h-full w-full items-center justify-center gap-3 opacity-0 duration-150 hover:opacity-100">
@@ -180,7 +185,7 @@ function Wishlist() {
                     <img
                       width="150px"
                       className="object-contain"
-                      src={`${conf.BACKEND_DOMAIN}${item?.product?.imgs?.[0]}`}
+                      src={addDimensionsTransformationToUrl(item?.product?.imgs?.[0],500,500)}
                       alt="Kitchen image"
                     />
 
@@ -249,7 +254,7 @@ function Wishlist() {
           <div className="flex items-center flex-col justify-center gap-8 w-full">
             <span className="text-3xl font-bold">Your Wishlist is Empty</span>
             <img
-              src="src/assets/images/empty-wishlist.png"
+              src="https://res.cloudinary.com/dmz847afv/image/upload/v1738738105/static/n1p85ctr0t4ebjgsum9o.png"
               className="w-24 h-24 mix-blend-multiply"
             />
             <button

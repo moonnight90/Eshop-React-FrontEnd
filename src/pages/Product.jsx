@@ -1,12 +1,11 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { CartCounter, SnackBar } from "../components";
+import { CartCounter, SnackBar, LoadingScreen } from "../components";
 import myBackend from "../backend/config";
 import { Rating } from "@mui/material";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import conf from "../config/conf";
 import { setCartCount } from "../store/cartSlice";
 function Product() {
   // States
@@ -26,13 +25,12 @@ function Product() {
     const data = await myBackend.getProduct({ id });
     setProduct(data);
   };
-  const addDimensionsTransformationToUrl = (url,h,w)=>{
+  const addDimensionsTransformationToUrl = (url, h, w) => {
     if (!url) return url;
-    const splited = url.split('upload');
-    
+    const splited = url.split("upload");
+
     return `${splited[0]}upload/w_${w},h_${h}${splited[1]}`;
-    
-  }
+  };
 
   const addCartHandle = async () => {
     if (!user.is_login) {
@@ -71,11 +69,11 @@ function Product() {
   });
 
   //Hooks
-  React.useEffect(() => {
+  useEffect(() => {
     loadProduct();
   }, [id]);
 
-  React.useEffect(() => window.scrollTo(0, 0), [product]);
+  useEffect(() => window.scrollTo(0, 0), [product]);
   return (
     <>
       <SnackBar
@@ -111,7 +109,11 @@ function Product() {
             <div className=" flex justify-center flex-col items-center overflow-hidden">
               <img
                 className="cursor-pointer border-solid border-2 object-contain h-96 w-96"
-                src={addDimensionsTransformationToUrl(product?.imgs[currentImg],500,500)}
+                src={addDimensionsTransformationToUrl(
+                  product?.imgs[currentImg],
+                  500,
+                  500
+                )}
                 alt=""
               />
 
@@ -126,7 +128,7 @@ function Product() {
                   >
                     <img
                       className="cursor-pointer object-contain max-w-full max-h-full"
-                      src={addDimensionsTransformationToUrl(img,100,100)}
+                      src={addDimensionsTransformationToUrl(img, 100, 100)}
                       alt={`image_${i}`}
                     />
                   </div>
@@ -254,9 +256,8 @@ function Product() {
           </section>
         </>
       ) : (
-        <div className="container mx-auto max-w-[1200px]">
-          <span className="w-full h-full">Loading</span>
-        </div>
+        <LoadingScreen />
+        
       )}
     </>
   );

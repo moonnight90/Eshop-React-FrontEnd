@@ -2,15 +2,14 @@ import React, { useCallback, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import myBackend from "../backend/config";
 import { CartCounter, LoadingScreen } from "../components";
-import conf from "../config/conf";
 import { useDispatch, useSelector } from "react-redux";
 import { setOrder } from "../store/orderSlice";
 import { setCartCount } from "../store/cartSlice";
 
 function Cart() {
   // States
-  const [cart, setCart] = React.useState([]);
-  const [loading, setLoading] = React.useState(false);
+  const [cart, setCart] = useState([]);
+  const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const cartCount = useSelector((state) => state.cartCount);
@@ -46,6 +45,12 @@ function Cart() {
   const handleCheckout = () => {
     dispatch(setOrder({ products: cart, total }));
     navigate("/place-order");
+  };
+  const addDimensionsTransformationToUrl = (url, h, w) => {
+    if (!url) return url;
+    const splited = url.split("upload");
+
+    return `${splited[0]}upload/w_${w},h_${h}${splited[1]}`;
   };
 
   // Hooks
@@ -111,7 +116,7 @@ function Cart() {
                       className=" object-contain"
                       width="90px"
                       height="90px"
-                      src={`${conf.BACKEND_DOMAIN}${product?.product?.imgs[0]}`}
+                      src={addDimensionsTransformationToUrl(product?.product?.imgs[0],100,100)}
                       alt="img"
                     />
                     <div className="ml-3 flex w-full flex-col justify-center">
@@ -185,7 +190,7 @@ function Cart() {
                             <div className="flex">
                               <img
                                 className="w-[90px] h-[90px] object-contain"
-                                src={`${conf.BACKEND_DOMAIN}${product?.product?.imgs[0]}`}
+                                src={addDimensionsTransformationToUrl(product?.product?.imgs[0],100,100)}
                                 alt="img"
                               />
                               <div className="ml-3 flex flex-col justify-center">
@@ -276,7 +281,7 @@ function Cart() {
             <div className="flex items-center flex-col justify-center gap-8">
               <span className="text-3xl font-bold">Your Cart is Empty</span>
               <img
-                src="empty_cart.jpg"
+                src="https://res.cloudinary.com/dmz847afv/image/upload/v1738739564/empty_cart_mqp0vx.jpg"
                 alt=""
                 className="w-24 h-24 mix-blend-multiply"
               />

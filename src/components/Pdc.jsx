@@ -5,7 +5,6 @@ import { Link } from "react-router-dom";
 import myBackend from "../backend/config";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import conf from "../config/conf";
 import { setCartCount } from "../store/cartSlice";
 function Pdc({ product, showMessage, setShowMessage, setSnackBarMessage }) {
   // States

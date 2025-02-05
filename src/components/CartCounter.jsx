@@ -1,11 +1,11 @@
-import React, { useEffect, useImperativeHandle } from "react";
+import React, { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 
 function CartCounter(
   { default_quantity = 1, onQuantityChange = () => {}, disable, max_val=10},
   ref
 ) {
-  const [quantity, setQuantity] = React.useState(default_quantity);
-  const [isMounted, setIsMounted] = React.useState(false);
+  const [quantity, setQuantity] = useState(default_quantity);
+  const [isMounted, setIsMounted] = useState(false);
   const handleQuantity = (value) => {
     setQuantity((prev) => Math.max(1, Math.min(Math.min(10,max_val), prev + value)));
   };
@@ -48,4 +48,4 @@ function CartCounter(
   );
 }
 
-export default React.forwardRef(CartCounter);
+export default forwardRef(CartCounter);

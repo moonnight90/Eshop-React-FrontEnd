@@ -4,7 +4,6 @@ import {
   NavigationBar,
   Input,
   LoadingScreen,
-  LoadingAnimation
 } from "../components";
 import { login } from "../store/authSlice";
 import { useSelector, useDispatch } from "react-redux";

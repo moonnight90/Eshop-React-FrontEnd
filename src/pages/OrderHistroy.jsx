@@ -107,6 +107,9 @@ function OrderHistroy() {
                   </div>
                 </div>
               ))}
+              {
+                orders.length==0&&<div className="text-center">Didn't order yet!</div>
+              }
             </section>
             {/* Mobile order table  */}
 

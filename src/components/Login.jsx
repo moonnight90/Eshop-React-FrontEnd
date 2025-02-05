@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { FoForgotPassword, Input, SnackBar } from "./index";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
@@ -6,9 +6,10 @@ import { login, logout } from "../store/authSlice";
 import backendAuth from "../backend/auth";
 import { Link } from "react-router-dom";
 import OtpInputField from "./OtpInputField";
-import { setForgotPass, setOtp, reset } from "../store/forgotPassSlice";
+import { setForgotPass, reset } from "../store/forgotPassSlice";
 import { useState } from "react";
 import myBackend from "../backend/config";
+import { CircularProgress } from "@mui/material";
 function Login() {
   // States
   const dispatch = useDispatch();
@@ -135,10 +136,10 @@ function Login() {
             />
 
             <div className="mt-4 flex items-center justify-between ">
-              <div className="flex items-center gap-2">
+              {/* <div className="flex items-center gap-2">
                 <Input type="checkbox" {...register("rememberMe")} />
                 <label htmlFor="checkbox">Remember me</label>
-              </div>
+              </div> */}
               <button
               type="button"
                 className="text-violet-900"
@@ -151,14 +152,16 @@ function Login() {
               </button>
             </div>
 
-            <input
-              className={`my-5 w-full bg-violet-900 py-2 cursor-pointer text-white ${
-                loginLoading ? " bg-gray-300" : ""
+            <button
+              className={`my-5 w-full py-2 cursor-pointer text-white flex justify-center items-center gap-2 ${
+                loginLoading ? " bg-gray-500" : "bg-violet-900"
               }`}
               type="submit"
 
               disabled={loginLoading}
-            />
+            >Login
+            {loginLoading&&<CircularProgress size={20} color="inherit" />}
+            </button>
              
           </form>
 

@@ -1,9 +1,9 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 function OtpInputField({ length = 6,otp, setOtp, className }) {
   // States
-  const [cursor, setCursor] = React.useState(0);
-  const refs = React.useRef([]);
+  const [cursor, setCursor] = useState(0);
+  const refs = useRef([]);
   // Methods
 
   const handlePaste = (e)=>{
@@ -44,7 +44,7 @@ function OtpInputField({ length = 6,otp, setOtp, className }) {
     }
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (otp.length === length) {
     }
 

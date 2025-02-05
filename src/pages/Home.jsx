@@ -38,7 +38,7 @@ function Home() {
       <div className="relative">
         <img
           className="w-full object-cover brightness-50 filter lg:h-[500px]"
-          src="src/assets/images/header-bg.jpeg"
+          src="https://res.cloudinary.com/dmz847afv/image/upload/v1738745363/header-bg_vwnnii.jpg"
           alt="Living room image"
         />
 
@@ -280,7 +280,7 @@ function Home() {
 
           <img
             className="-mr-5 hidden w-[550px] object-cover md:block"
-            src="src/assets/images/sale-bage.jpeg"
+            src="https://res.cloudinary.com/dmz847afv/image/upload/v1738745476/sale-bage_dlommz.jpg"
             alt="Rainbow credit card with macbook on a background"
           />
         </section>

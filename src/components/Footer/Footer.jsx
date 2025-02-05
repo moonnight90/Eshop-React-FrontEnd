@@ -1,42 +1,19 @@
 import React from "react";
+import Logo from "../Logo";
 
 function Footer() {
   return (
     <>
       <footer className="mx-auto w-full max-w-[1200px] justify-between pb-10 flex flex-col lg:flex-row">
         <div className="ml-5">
-          <img
-            className="mt-10 mb-5"
-            src="src/assets/images/company-logo.svg"
-            alt="company logo"
-          />
+          <div className="mt-10 mb-5">
+            <Logo />
+          </div>
           <p className="pl-0">
             Lorem ipsum dolor sit amet consectetur <br />
             adipisicing elit.
           </p>
-          <div className="mt-10 flex gap-3">
-            <a href="https://github.com/bbulakh">
-              <img
-                className="h-5 w-5 cursor-pointer"
-                src="src/assets/images/github.svg"
-                alt="github icon"
-              />
-            </a>
-            <a href="https://t.me/b_bulakh">
-              <img
-                className="h-5 w-5 cursor-pointer"
-                src="src/assets/images/telegram.svg"
-                alt="telegram icon"
-              />
-            </a>
-            <a href="https://www.linkedin.com/in/bogdan-bulakh-393284190/">
-              <img
-                className="h-5 w-5 cursor-pointer"
-                src="src/assets/images/linkedin.svg"
-                alt="twitter icon"
-              />
-            </a>
-          </div>
+          
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -114,26 +91,9 @@ function Footer() {
         </div>
       </footer>
 
-      <section className="h-11 bg-amber-400">
-        <div className="mx-auto flex max-w-[1200px] items-center justify-between px-4 pt-2">
+      <section className="h-11 bg-amber-400 flex">
+        <div className="mx-auto px-4 pt-2">
           <p>&copy; Copyright, 2024</p>
-          <div className="flex items-center space-x-3">
-            <img
-              className="h-8"
-              src="https://cdn-icons-png.flaticon.com/512/5968/5968299.png"
-              alt="Visa icon"
-            />
-            <img
-              className="h-8"
-              src="https://cdn-icons-png.flaticon.com/512/349/349228.png"
-              alt="AE icon"
-            />
-            <img
-              className="h-8"
-              src="https://cdn-icons-png.flaticon.com/512/5968/5968144.png"
-              alt="Apple pay icon"
-            />
-          </div>
         </div>
       </section>
     </>

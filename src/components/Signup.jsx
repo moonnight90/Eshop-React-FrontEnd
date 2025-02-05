@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 import { Button, Input, OtpVerifier } from "./";
@@ -7,6 +7,7 @@ import { login } from "../store/authSlice";
 import { useDispatch } from "react-redux";
 import myBackend from "../backend/config";
 import { useNavigate } from "react-router-dom";
+import { CircularProgress } from "@mui/material";
 
 function Signup() {
   // Using React Hook Form
@@ -20,16 +21,14 @@ function Signup() {
   // States
   const [passMatch, setPassMatch] = useState(false);
   const [showOtp, setShowOtp] = useState(false);
-  const [respError, setRespErrors] = useState("");
   const [signupData, setSignupData] = useState({});
   const [otpVerfied, setOtpVerfied] = useState(false);
-  const [retires, setRetires] = React.useState(4);
-  const [isSignUpPressed,setIsSignUpPressed] = React.useState(false);
+  const [retires, setRetires] = useState(4);
+  const [isSignUpPressed,setIsSignUpPressed] = useState(false);
   const dispatch = useDispatch();
-  const navigate = useNavigate();
 
   // UseEffect
-  React.useEffect(() => {
+  useEffect(() => {
     watch((value, { name }) => {
       if (name === "confirmPassword" || name === "password")
         if (
@@ -183,12 +182,13 @@ function Signup() {
           )}
 
           <Button
-            className={`my-5 w-full rounded-none mt-3 py-2 text-white  ${
+            className={`my-5 w-full rounded-none mt-3 py-2 text-white flex justify-center items-center gap-2  ${
               passMatch || isSignUpPressed ? "bg-gray-500 " : "bg-violet-900 hover:bg-violet-950"
             }`}
             disabled={passMatch || isSignUpPressed}
           >
             CREATE ACCOUNT
+            {isSignUpPressed&&<CircularProgress size={20} color="inherit" />}
           </Button>
         </form>
 

@@ -1,7 +1,5 @@
 import React from "react";
-import conf from "../config/conf";
 function OrderOverview(orderData) {
-  console.log(orderData);
 
   return (
     <>
@@ -12,7 +10,7 @@ function OrderOverview(orderData) {
             <img
               className="self-start object-contain"
               width="90px"
-              src={`${conf.BACKEND_DOMAIN}${order?.product?.imgs?.[0]}`}
+              src={`${order?.product?.imgs?.[0]}`}
               alt="thumbnail"
             />
             <div className="ml-3 flex w-full flex-col justify-center">
@@ -64,7 +62,7 @@ function OrderOverview(orderData) {
                   <div className="flex">
                     <img
                       className="w-[90px]"
-                      src={`${conf.BACKEND_DOMAIN}${order?.product?.imgs?.[0]}`}
+                      src={`${order?.product?.imgs?.[0]}`}
                       alt="thumbnail"
                     />
                     <div className="ml-3 flex flex-col justify-center">
