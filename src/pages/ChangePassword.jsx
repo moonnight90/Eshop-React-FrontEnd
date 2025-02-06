@@ -5,9 +5,11 @@ import { useSelector,useDispatch } from "react-redux";
 import { login } from "../store/authSlice";
 import backendAuth from "../backend/auth";
 import CircularProgress from "@mui/material/CircularProgress";
+import useDocumentTitle from "../CustomHook/useDocumentTitle";
 
 function ChangePassword() {
   // States
+  useDocumentTitle("ChangePassword");
   const [passMatch, setPassMatch] = useState(false);
   const user = useSelector((auth) => auth.auth);
   const [showMessage, setShowMessage] = useState(false);

@@ -8,8 +8,10 @@ import {
   OrderOverview,
 } from "../components";
 import { useSearchParams } from "react-router-dom";
+import useDocumentTitle from "../CustomHook/useDocumentTitle";
 function OrderHistroy() {
   // States
+  useDocumentTitle("OrderHistory");
   const user = useSelector((state) => state.auth);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);

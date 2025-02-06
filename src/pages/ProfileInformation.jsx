@@ -9,10 +9,12 @@ import { login } from "../store/authSlice";
 import { useSelector, useDispatch } from "react-redux";
 import { useForm } from "react-hook-form";
 import backendAuth from "../backend/auth";
+import useDocumentTitle from "../CustomHook/useDocumentTitle";
 
 
 function ProfileInformation() {
   // States
+  useDocumentTitle("Profile")
   const user = useSelector((auth) => auth.auth);
   const { register, handleSubmit, watch, reset } = useForm();
   const [srcImage, setSrcImage] = useState(false);

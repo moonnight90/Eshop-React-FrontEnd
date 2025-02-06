@@ -1,17 +1,22 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useSelector } from "react-redux";
+import { useSelector,useDispatch } from "react-redux";
 import myBackend from "../backend/config";
-import conf from "../config/conf";
 import { useNavigate } from "react-router-dom";
+import { resetState } from "../store/cartSlice";
+import { CircularProgress } from "@mui/material";
+import useDocumentTitle from "../CustomHook/useDocumentTitle";
 
 function PlaceOrder() {
   // States
+  useDocumentTitle("Place Order");
   const orders = useSelector((state) => state.order);
   const user = useSelector((state) => state.auth);
   const [address, setAddress] = useState([]);
   const [seletedAddress, setSeletedAddress] = useState(null);
   const [updatingAddress, setUpdatingAddress] = useState(false);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   // Hooks
 
@@ -25,6 +30,7 @@ function PlaceOrder() {
   });
 
   const handleConfirmOrder = async () => {
+    setLoading(true);
     if (seletedAddress == null) {
       alert("Please Select an Address!");
 
@@ -51,6 +57,8 @@ function PlaceOrder() {
     } else {
       console.log(await resp.json());
     }
+    setLoading(false);
+    dispatch(resetState());
   };
   const addDimensionsTransformationToUrl = (url, h, w) => {
     if (!url) return url;
@@ -148,7 +156,7 @@ function PlaceOrder() {
                 <img
                   src={addDimensionsTransformationToUrl(order.product.imgs[0],500,500)}
                   className="h-24 w-24 object-contain border"
-                  
+
                 />
                 <div className="w-2/3">
                   <p>{order.product.title}</p>
@@ -180,10 +188,12 @@ function PlaceOrder() {
               </div>
 
               <button
-                className="w-full bg-violet-900 px-5 py-2 text-white"
+                className="w-full flex gap-2 justify-center items-center bg-violet-900 px-5 py-2 text-white"
                 onClick={handleConfirmOrder}
+                disabled={loading}
               >
                 Confirm Order
+                {loading&&<CircularProgress size={20} color="inherit" />}
               </button>
             </div>
           </div>

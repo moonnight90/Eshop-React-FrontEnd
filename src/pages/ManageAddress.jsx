@@ -8,8 +8,10 @@ import {
 } from "../components";
 import { useSelector } from "react-redux";
 import myBackend from "../backend/config";
+import useDocumentTitle from "../CustomHook/useDocumentTitle";
 function ManageAddress() {
   // States
+  useDocumentTitle("Address");
   const [address, setAddress] = useState([]);
   const [updatingAddress, setUpdatingAddress] = useState(false);
   const user = useSelector((auth) => auth.auth);

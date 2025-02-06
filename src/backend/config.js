@@ -14,7 +14,6 @@ class MyBackend {
     max_price,
     categories = [],
     q = null,
-    controller
   }) {
     
     const params = [];
@@ -30,7 +29,6 @@ class MyBackend {
     try {
       const response = await fetch(
         `${this.BASE}/api/products/${params.length?`?${params.join('&')}`:""}`,{
-          signal: controller.signal,
           method: "GET",
           headers: {
             "Content-Type": "application/json",

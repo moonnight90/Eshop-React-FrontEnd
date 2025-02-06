@@ -3,8 +3,10 @@ import LocalPhoneIcon from "@mui/icons-material/LocalPhone";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import EmailIcon from '@mui/icons-material/Email';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
+import useDocumentTitle from "../CustomHook/useDocumentTitle";
 
 function ContactUs() {
+  useDocumentTitle("Contact Us");
   return (
     <section class="w-full flex-grow">
       <div class="relative">

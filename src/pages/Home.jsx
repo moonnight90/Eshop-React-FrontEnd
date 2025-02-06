@@ -4,8 +4,10 @@ import myBackend from "../backend/config";
 import { Link, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { reset } from "../store/productSlice";
+import useDocumentTitle from "../CustomHook/useDocumentTitle";
 
 function Home() {
+  useDocumentTitle("Maybell - Home");
   const [products, setProducts] = useState(null);
   const [params, setParams] = useSearchParams();
   const catalog = useSelector((state) => state.catalog);
@@ -13,7 +15,7 @@ function Home() {
   const fetchProducts = async () => {
     try {
       const products = await myBackend.getProducts({
-        limit: 8,
+        limit: 13,
         sortby: "title",
         order: "asc",
       });
@@ -52,7 +54,7 @@ function Home() {
             adipisci earum ducimus pariatur eaque labore.
           </p>
           <Link
-            className="mx-auto mt-5 w-1/2 bg-amber-400 px-3 py-1 text-black duration-100 hover:bg-yellow-300 lg:mx-0 lg:h-10 lg:w-2/12 lg:px-10"
+            className="mx-auto flex justify-center items-center mt-5 w-1/2 bg-amber-400 px-3 py-1 text-black duration-100 hover:bg-yellow-300 lg:mx-0 lg:h-10 lg:w-2/12 lg:px-10"
             to={"/catalog?cat=furniture"}
           >
             Explore Now
@@ -266,16 +268,16 @@ function Home() {
           <div className="py-8 px-3 lg:px-16">
             <p className="text-white">ONLINE EXCLUSIVE</p>
             <h2 className="pt-6 text-5xl font-bold text-yellow-400">15% OFF</h2>
-            <p className="pt-4 text-white">
-              ACCENT CHAIRS, <br />
-              TABLES & OTTOMANS
+            <p className="pt-4 pb-6 text-white">
+              Beauty, <br />
+              Fragrances & Mens-watches
             </p>
-            <button
-              href="#"
+            <Link
+              to={"/catalog?cat=mens-watches%2Cbeauty%2Cfragrances"}
               className="mt-6 bg-amber-400 px-4 py-2 duration-100 hover:bg-yellow-300"
             >
               Shop now
-            </button>
+            </Link>
           </div>
 
           <img

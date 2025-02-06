@@ -5,9 +5,13 @@ import { CartCounter, LoadingScreen } from "../components";
 import { useDispatch, useSelector } from "react-redux";
 import { setOrder } from "../store/orderSlice";
 import { setCartCount } from "../store/cartSlice";
+import useDocumentTitle from "../CustomHook/useDocumentTitle"
 
 function Cart() {
   // States
+
+  useDocumentTitle("Cart");
+
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();

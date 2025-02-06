@@ -10,7 +10,6 @@ import ProductCard from "./Pdc";
 import Products from "./Products";
 import CartCounter from "./CartCounter";
 import AuthLayout from "./AuthLayout";
-import Pdc from "./Pdc";
 import OtpVerifier from "./OtpVerifier";
 import OtpInputField from "./OtpInputField";
 import SnackBar from "./SnackBar";
@@ -38,7 +37,6 @@ export {
   Products,
   CartCounter,
   AuthLayout,
-  Pdc,
   OtpVerifier,
   OtpInputField,
   SnackBar,

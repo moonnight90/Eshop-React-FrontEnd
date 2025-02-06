@@ -8,6 +8,7 @@ import { LoadingScreen } from "../components";
 
 function OrderConfirm() {
   // States
+  useDocumentTitle("Orders");
   const user = useSelector((state) => state.auth);
   const [searchParams, setSearchParams] = useSearchParams();
   const [wrongReq, setWrongReq] = useState(true);

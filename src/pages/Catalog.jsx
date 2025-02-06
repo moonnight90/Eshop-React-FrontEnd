@@ -15,14 +15,17 @@ import {
   updatePrice,
   updateSearchQuery,
 } from "../store/productSlice";
+import useDocumentTitle from "../CustomHook/useDocumentTitle";
 // Lazy load the Products component
 const Products = lazy(() => import("../components/Products"));
 
 function Catalog() {
   // States
+  useDocumentTitle("Catalog");
   const [categories, setCategories] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [params, setParams] = useSearchParams();
+  const [loading, setLoading] = useState(true);
 
   //store states
   const catalog = useSelector((state) => state.catalog);
@@ -71,6 +74,8 @@ function Catalog() {
     sort_by && dispatch(updateOrdering({ sort_by, order }));
 
     fetchCategories(); // Call the async function inside useEffect
+
+    setLoading(false);
   }, []);
 
   // Methods
@@ -311,7 +316,7 @@ function Catalog() {
             >
               <FilterAltIcon />
             </button>
-
+            
             <div className="border-2 border-yellow-400 text-purple-900 focus:outline-none focus:border-purple-800 transition duration-300 ease-in-out">
               <SortIcon />
               <select
@@ -344,8 +349,11 @@ function Catalog() {
             </div>
           </div>
           <hr />
+          {catalog?.q&&<div className="p-3">
+            Search for: <span className=" font-bold">{catalog?.q}</span>
+          </div>}
           <Suspense fallback={<Skeleton variant="rectangular" height={400} />}>
-            <Products limit={24} setParams={setParams} params={params} />
+            {!loading&&<Products limit={24} setParams={setParams} params={params} />}
           </Suspense>
         </div>
       </section>

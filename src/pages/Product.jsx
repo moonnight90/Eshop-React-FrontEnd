@@ -7,8 +7,10 @@ import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { setCartCount } from "../store/cartSlice";
+import useDocumentTitle from "../CustomHook/useDocumentTitle";
 function Product() {
   // States
+  const documentTitle = useDocumentTitle("Loading...");
   const [product, setProduct] = useState(false);
   const [currentImg, setCurrentImg] = useState(0);
   const [quantity, setQuantity] = useState(1);
@@ -26,6 +28,7 @@ function Product() {
   const loadProduct = async () => {
     const data = await myBackend.getProduct({ id });
     setProduct(data);
+    documentTitle(data?.title);
   };
   const addDimensionsTransformationToUrl = (url, h, w) => {
     if (!url) return url;

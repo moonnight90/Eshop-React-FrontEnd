@@ -415,7 +415,7 @@ function Header() {
         </div>
       </header>
       <nav className="relative bg-violet-900">
-        <div className="mx-auto hidden h-12 w-full max-w-[1200px] justify-center items-center items-center md:flex">
+        <div className="mx-auto hidden h-12 w-full max-w-[1200px] justify-center items-center md:flex">
           {/* <button
             className="ml-5 flex h-full w-40 cursor-pointer items-center justify-center bg-amber-400"
             onClick={() => setShowCats(!showCats)}

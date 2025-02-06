@@ -4,9 +4,11 @@ import myBackend from "../backend/config";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { setCartCount } from "../store/cartSlice";
+import useDocumentTitle from "../CustomHook/useDocumentTitle";
 
 function Wishlist() {
   // States
+  useDocumentTitle('Wishlist')
   const [wishlistItems, setWishlistItems] = useState([]);
   const navigate = useNavigate();
   //   const [loading, setLoading] = useState(false);
