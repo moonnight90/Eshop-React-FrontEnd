@@ -4,6 +4,7 @@ import { useSearchParams,Link } from "react-router-dom";
 import myBackend from "../backend/config";
 import { useNavigate } from "react-router-dom";
 import { LoadingScreen } from "../components";
+import useDocumentTitle from "../CustomHook/useDocumentTitle";
 
 
 function OrderConfirm() {
