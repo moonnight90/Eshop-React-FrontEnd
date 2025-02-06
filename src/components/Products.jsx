@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import myBackend from "../backend/config";
 import Pagination from "@mui/material/Pagination";
 import Stack from "@mui/material/Stack";
@@ -13,13 +13,14 @@ const Products = ({ limit = 12, pagination = true, sortby, order }) => {
   const [loading, setLoading] = useState(false);
   const [showMessage, setShowMessage] = useState(false);
   const [snackBarMessage, setSnackBarMessage] = useState("");
+  const abortController = useRef();
 
   const catalog = useSelector((state) => state.catalog);
   const dispatch = useDispatch();
 
   // Methods
   const loadProducts = useCallback(
-    async () => {
+    async (controller) => {
       const data = await myBackend.getProducts({
         limit,
         sortby: sortby ? sortby : catalog?.ordering?.sort_by,
@@ -28,7 +29,8 @@ const Products = ({ limit = 12, pagination = true, sortby, order }) => {
         categories: catalog?.filters?.categories,
         min_price: catalog?.filters?.price[0],
         max_price: catalog?.filters?.price[1],
-        q: catalog?.q
+        q: catalog?.q,
+        controller
       });
 
       if (pagination) {
@@ -70,6 +72,9 @@ const Products = ({ limit = 12, pagination = true, sortby, order }) => {
   useEffect(
     () => {
       if (pagination) window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+      if (abortController.current) abortController.current.abort();
+      const controller = new AbortController();
+      abortController.current = controller;
 
       // if (params.get("min_price")) {
       //   setMinp(parseInt(params.get("min_price")));
@@ -77,7 +82,7 @@ const Products = ({ limit = 12, pagination = true, sortby, order }) => {
       // if (params.get("max_price")) {
       //   setMaxp(parseInt(params.get("max_price")));
       // } else setMaxp(null);
-      loadProducts();
+      loadProducts(controller);
     },
     [catalog] // Dependencies
   );

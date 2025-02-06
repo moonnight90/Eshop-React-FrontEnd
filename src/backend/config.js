@@ -14,6 +14,7 @@ class MyBackend {
     max_price,
     categories = [],
     q = null,
+    controller
   }) {
     
     const params = [];
@@ -28,7 +29,13 @@ class MyBackend {
     sortby = `${order === "asc" ? "" : "-"}${sortby}`;
     try {
       const response = await fetch(
-        `${this.BASE}/api/products/${params.length?`?${params.join('&')}`:""}`
+        `${this.BASE}/api/products/${params.length?`?${params.join('&')}`:""}`,{
+          signal: controller.signal,
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
       );
       return await response.json();
     } catch (err) {
