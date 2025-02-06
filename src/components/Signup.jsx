@@ -104,7 +104,7 @@ function Signup() {
 
   return (
     <section className="mx-auto mt-10 w-full flex-grow mb-10 max-w-[1200px] px-5">
-      <div className="container mx-auto border px-5 py-5 shadow-sm md:w-1/2">
+      <div className="container max-w-[450px] mx-auto border px-5 py-5 shadow-sm md:w-1/2">
         <div className="">
           <p className="text-4xl font-bold">CREATE AN ACCOUNT</p>
           <p>Register for new customer</p>

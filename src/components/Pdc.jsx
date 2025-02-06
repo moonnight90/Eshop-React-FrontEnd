@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import LazyLoad from "react-lazyload";
-import { Rating, Skeleton } from "@mui/material";
+import { CircularProgress, Rating, Skeleton } from "@mui/material";
 import { Link } from "react-router-dom";
 import myBackend from "../backend/config";
 import { useDispatch, useSelector } from "react-redux";
@@ -9,6 +9,7 @@ import { setCartCount } from "../store/cartSlice";
 function Pdc({ product, showMessage, setShowMessage, setSnackBarMessage }) {
   // States
   const [loading, setLoading] = useState(true);
+  const [loadingCart, setLoadingCart] = useState(false);
   const user = useSelector((state) => state.auth);
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -30,6 +31,7 @@ function Pdc({ product, showMessage, setShowMessage, setSnackBarMessage }) {
   }, [product]);
 
   const addToCart = async (product) => {
+    setLoadingCart(true);
     if (!user.is_login) {
       window.scroll(0, 0);
       navigate("/login");
@@ -58,6 +60,7 @@ function Pdc({ product, showMessage, setShowMessage, setSnackBarMessage }) {
       }
     }
     chnageCartQuantity();
+    setLoadingCart(false);
   };
 
   const handleAddtoWishlist = useCallback(async (id) => {
@@ -160,9 +163,10 @@ function Pdc({ product, showMessage, setShowMessage, setSnackBarMessage }) {
           <div>
             <button
               onClick={() => addToCart(product)}
-              className=" h-10 w-full bg-purple-800 text-white hover:bg-purple-600"
+              className="flex gap-2 justify-center items-center h-10 w-full bg-purple-800 text-white hover:bg-purple-600"
             >
               Add to cart
+              {loadingCart && <CircularProgress size={20} color="inherit" />} 
             </button>
           </div>
         </div>

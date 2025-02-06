@@ -60,23 +60,26 @@ function Header() {
   };
 
   useEffect(() => {
-    if (abortSignale.current) {
-      abortSignale.current.abort();
-    }
-    const controller = new AbortController();
-    abortSignale.current = controller;
-    async function get_suggestions(q, abortSignale) {
-      if (q === "") {
-        setSuggestion([]);
-        return;
+    try {
+      if (abortSignale.current) {
+        abortSignale.current.abort();
       }
-      const resp = await myBackend.autoComplete(q, abortSignale);
-      if (resp.status == 200) {
-        setSuggestion(await resp.json());
+      const controller = new AbortController();
+      abortSignale.current = controller;
+      async function get_suggestions(q, controller) {
+        if (q === "") {
+          setSuggestion([]);
+          return;
+        }
+        const resp = await myBackend.autoComplete(q, controller.signal);
+        if (resp.status == 200) {
+          setSuggestion(await resp.json());
+        }
       }
+      get_suggestions(searchQuery, controller);
+    } catch (e) {
+      console.log(e);
     }
-
-    get_suggestions(searchQuery);
   }, [searchQuery]);
 
   // Hooks
@@ -236,7 +239,7 @@ function Header() {
                         <li className="px-5 py-2 hover:text-yellow-500">
                           Manage Address
                         </li>
-                      </Link> 
+                      </Link>
                       <Link to="order-history">
                         <li className="px-5 py-2 hover:text-yellow-500">
                           Orders
@@ -457,7 +460,6 @@ function Header() {
               Contact Us
             </Link>
           </div>
-          
         </div>
       </nav>
       {/* <!-- /Nav bar --> */}

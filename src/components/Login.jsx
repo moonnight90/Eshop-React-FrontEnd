@@ -20,6 +20,8 @@ function Login() {
   const [showMessage, setShowMessage] = useState(false);
   const [message, setMessage] = useState("");
   const [newPassword, setNewPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  
 
   // Redux
   const forgotPassState = useSelector((state) => state.forgotPass);
@@ -47,6 +49,7 @@ function Login() {
   };
 
   const submitNewPassword = async () => {
+    setLoading(true);
     const resp = await myBackend.confirm_reset_password(
       forgotPassState?.email,
       otpL.join(""),
@@ -64,6 +67,7 @@ function Login() {
       setMessage("Unexpected Error occur ...");
     }
     setShowMessage(true);
+    setLoading(false);
   };
 
   return (
@@ -94,10 +98,13 @@ function Login() {
               }}
             />
             <button
-              className="mt-4 px-4 py-2 bg-amber-500 text-gray-800"
+              className={`mt-5 w-full py-2 cursor-pointer text-white flex justify-center items-center gap-2 ${
+                loading ? " bg-gray-500" : "bg-violet-900"
+              }`}
               onClick={submitNewPassword}
             >
               Submit
+              {loading && <CircularProgress size={20} color="inherit" />}
             </button>
           </div>
         </div>
@@ -148,7 +155,7 @@ function Login() {
                   dispatch(setForgotPass(true));
                 }}
               >
-                Forgot password
+                Forgot password?
               </button>
             </div>
 

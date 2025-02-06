@@ -365,7 +365,7 @@ class MyBackend {
       );
       return resp;
     } catch (error) {
-      return Response(null, { status: 500 });
+      return new Response(null, { status: 500 });
     }
   }
   async reset_password(email){

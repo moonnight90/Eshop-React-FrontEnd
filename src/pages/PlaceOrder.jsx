@@ -52,6 +52,12 @@ function PlaceOrder() {
       console.log(await resp.json());
     }
   };
+  const addDimensionsTransformationToUrl = (url, h, w) => {
+    if (!url) return url;
+    const splited = url.split("upload");
+
+    return `${splited[0]}upload/w_${w},h_${h}${splited[1]}`;
+  };
 
   // Hooks
   useEffect(() => {
@@ -140,8 +146,9 @@ function PlaceOrder() {
                 key={order.id}
               >
                 <img
-                  src={`${conf.BACKEND_DOMAIN}${order.product.imgs[0]}`}
+                  src={addDimensionsTransformationToUrl(order.product.imgs[0],500,500)}
                   className="h-24 w-24 object-contain border"
+                  
                 />
                 <div className="w-2/3">
                   <p>{order.product.title}</p>

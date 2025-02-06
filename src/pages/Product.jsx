@@ -1,20 +1,22 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { CartCounter, SnackBar, LoadingScreen } from "../components";
 import myBackend from "../backend/config";
-import { Rating } from "@mui/material";
+import { CircularProgress, Rating } from "@mui/material";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { setCartCount } from "../store/cartSlice";
 function Product() {
   // States
-  const [product, setProduct] = React.useState(false);
-  const [currentImg, setCurrentImg] = React.useState(0);
-  const [quantity, setQuantity] = React.useState(1);
-  const [showMessage, setShowMessage] = React.useState(false);
-  const [snackBarMessage, setSnackBarMessage] = React.useState("");
-  const quantityRef = React.useRef();
+  const [product, setProduct] = useState(false);
+  const [currentImg, setCurrentImg] = useState(0);
+  const [quantity, setQuantity] = useState(1);
+  const [showMessage, setShowMessage] = useState(false);
+  const [snackBarMessage, setSnackBarMessage] = useState("");
+  const [loadingCart, setLoadingCart] = useState(false);
+  const [loadingWhislist, setLoadingWhislist] = useState(false);
+  const quantityRef = useRef();
   const { id } = useParams();
   const user = useSelector((state) => state.auth);
   const navigate = useNavigate();
@@ -33,6 +35,7 @@ function Product() {
   };
 
   const addCartHandle = async () => {
+    setLoadingCart(true);
     if (!user.is_login) {
       window.scroll(0, 0);
       navigate("/login");
@@ -58,14 +61,17 @@ function Product() {
       }
     }
     chnageCartQuantity();
+    setLoadingCart(false);
   };
 
   const handleAddtoWishlist = useCallback(async (id) => {
+    setLoadingWhislist(true);
     const resp = await myBackend.addtoWishlist(user.user_token, id);
     if (resp.status == 200) {
       setSnackBarMessage("Added to wishlist ...");
       setShowMessage(true);
     }
+    setLoadingWhislist(false);
   });
 
   //Hooks
@@ -213,7 +219,7 @@ function Product() {
                       ? "bg-purple-800  hover:bg-purple-600 cursor-pointer"
                       : "bg-gray-500"
                   }`}
-                  disabled={!product?.stock}
+                  disabled={(!product?.stock || loadingCart)}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -230,6 +236,7 @@ function Product() {
                     />
                   </svg>
                   Add to cart
+                  {loadingCart&&<CircularProgress size={20} sx={{marginLeft:"10px"}} color="inherit" />}
                 </button>
                 <button
                   className="flex h-12 w-1/3 min-w-[140px] items-center justify-center bg-amber-400 duration-100 hover:bg-yellow-300"
@@ -250,6 +257,7 @@ function Product() {
                     />
                   </svg>
                   Wishlist
+                  {loadingWhislist&&<CircularProgress size={20} sx={{marginLeft:"10px"}} color="inherit" />}
                 </button>
               </div>
             </div>

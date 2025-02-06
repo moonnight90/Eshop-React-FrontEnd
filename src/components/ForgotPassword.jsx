@@ -7,6 +7,7 @@ import {
   setOtpSent,
   setEmail as setStateEmail,
 } from "../store/forgotPassSlice";
+import { CircularProgress } from "@mui/material";
 
 function ForgotPassword() {
   // States
@@ -14,9 +15,11 @@ function ForgotPassword() {
   const dispatch = useDispatch();
   const [showMessage, setShowMessage] = useState(false);
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
   // Methods
   const handleForgotPassword = async () => {
+    setLoading(true);
     const resp = await myBackend.reset_password(email);
     if (resp.status === 202) {
       dispatch(setOtpSent(true));
@@ -30,7 +33,9 @@ function ForgotPassword() {
     }
 
     setShowMessage(true);
+    setLoading(false);
   };
+  
 
   return (
     <>
@@ -58,11 +63,17 @@ function ForgotPassword() {
               value={email}
             />
             <button
-              className="mt-4 px-4 py-2 bg-amber-500 text-gray-800"
+              className={`my-5 w-full py-2 cursor-pointer text-white flex justify-center items-center gap-2 ${
+                loading ? " bg-gray-500" : "bg-violet-900"
+              }`}
               onClick={handleForgotPassword}
+              disabled={loading}
             >
+              
               Forgot Password
+              {loading && <CircularProgress size={20} color="inherit" />}
             </button>
+            
           </div>
         </div>
       </div>
