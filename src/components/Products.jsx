@@ -7,6 +7,32 @@ import { Button, ProductCard, SnackBar } from "./index";
 import { useDispatch, useSelector } from "react-redux";
 import { updatePage } from "../store/productSlice";
 
+const emptyProductPage = {
+  count: 0,
+  next: null,
+  previous: null,
+  results: [],
+};
+
+const normalizeProductPage = (data) => {
+  if (Array.isArray(data)) {
+    return {
+      ...emptyProductPage,
+      count: data.length,
+      results: data,
+    };
+  }
+
+  if (Array.isArray(data?.results)) {
+    return data;
+  }
+
+  return {
+    ...emptyProductPage,
+    error: data?.error || data?.detail || "Unable to load products.",
+  };
+};
+
 const Products = ({ limit = 12, pagination = true, sortby, order }) => {
   // States
   const [products, setProducts] = useState(false);
@@ -29,19 +55,25 @@ const Products = ({ limit = 12, pagination = true, sortby, order }) => {
         max_price: catalog?.filters?.price[1],
         q: catalog?.q
       });
+      const productPage = normalizeProductPage(data);
+
+      if (productPage.error) {
+        setSnackBarMessage(productPage.error);
+        setShowMessage(true);
+      }
 
       if (pagination) {
-        setProducts(data);
+        setProducts(productPage);
       } else {
         setProducts((oldProducts) => {
-          const results = oldProducts?.results || [];
-          for (const product of data.results) {
+          const results = [...(oldProducts?.results || [])];
+          for (const product of productPage.results) {
             if (!results.find((p) => p.id === product.id)) {
               results.push(product);
             }
           }
           return {
-            ...data,
+            ...productPage,
             results,
           };
         });

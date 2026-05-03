@@ -1,13 +1,13 @@
 import conf from "../config/conf";
+
 class Auth {
-  BaseURL;
   constructor() {
-    self.BaseURL = conf.BACKEND_DOMAIN;
+    this.baseURL = conf.BACKEND_DOMAIN;
   }
 
   login = async (data) => {
     try {
-      const resp = await fetch(`${self.BaseURL}/api/login/`, {
+      const resp = await fetch(`${this.baseURL}/api/login/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -24,10 +24,11 @@ class Auth {
   signup = async (data) => {
     const formData = new FormData();
 
-    for (let key in data) {
+    for (const key in data) {
       formData.append(key, data[key]);
     }
-    const resp = await fetch(`${self.BaseURL}/api/register/`, {
+
+    const resp = await fetch(`${this.baseURL}/api/register/`, {
       method: "POST",
       headers: {},
       body: formData,
@@ -36,7 +37,7 @@ class Auth {
   };
 
   me = async (token) => {
-    const resp = await fetch(`${self.BaseURL}/api/me/`, {
+    const resp = await fetch(`${this.baseURL}/api/me/`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -48,7 +49,7 @@ class Auth {
 
   send_otp = async (data) => {
     try {
-      const resp = await fetch(`${self.BaseURL}/api/send_otp/`, {
+      const resp = await fetch(`${this.baseURL}/api/send_otp/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -64,7 +65,7 @@ class Auth {
 
   verify_otp = async (data) => {
     try {
-      const resp = await fetch(`${self.BaseURL}/api/verify_otp/`, {
+      const resp = await fetch(`${this.baseURL}/api/verify_otp/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -86,7 +87,7 @@ class Auth {
       if (data?.file?.[0]) {
         form.append("image", data?.file?.[0]);
       }
-      const resp = await fetch(`${self.BaseURL}/api/me/`, {
+      const resp = await fetch(`${this.baseURL}/api/me/`, {
         method: "PUT",
         headers: {
           Authorization: `Token ${token}`,
@@ -95,14 +96,14 @@ class Auth {
       });
 
       return resp;
-    } catch (error) {
-      return { message: "Failed" };
+    } catch (_error) {
+      return new Response(null, { status: 500 });
     }
   };
 
   update_password = async (token, current_password, new_password) => {
     try {
-      const resp = await fetch(`${self.BaseURL}/api/update-password/`, {
+      const resp = await fetch(`${this.baseURL}/api/update-password/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -115,7 +116,7 @@ class Auth {
       });
 
       return resp;
-    } catch (error) {
+    } catch (_error) {
       return new Response(null, { status: 500 });
     }
   };

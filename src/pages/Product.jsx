@@ -42,6 +42,8 @@ function Product() {
     if (!user.is_login) {
       window.scroll(0, 0);
       navigate("/login");
+      setLoadingCart(false);
+      return;
     }
 
     const resp = await myBackend.addToCart({
@@ -68,6 +70,10 @@ function Product() {
   };
 
   const handleAddtoWishlist = useCallback(async (id) => {
+    if (!user.is_login) {
+      navigate("/login");
+      return;
+    }
     setLoadingWhislist(true);
     const resp = await myBackend.addtoWishlist(user.user_token, id);
     if (resp.status == 200) {
@@ -75,7 +81,7 @@ function Product() {
       setShowMessage(true);
     }
     setLoadingWhislist(false);
-  });
+  }, [navigate, user.is_login, user.user_token]);
 
   //Hooks
   useEffect(() => {

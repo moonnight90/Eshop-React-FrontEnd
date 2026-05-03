@@ -1,5 +1,8 @@
 import React from "react";
 function OrderOverview(orderData) {
+  const orderDate = orderData?.order?.created_at
+    ? new Date(orderData?.order?.created_at).toLocaleDateString()
+    : "";
 
   return (
     <>
@@ -132,7 +135,7 @@ function OrderOverview(orderData) {
                     `}>{orderData?.order?.status}</span>
                 </p>
 
-                <p>Date: 20/12/2023</p>
+                <p>Date: {orderDate}</p>
               </div>
 
               <div></div>

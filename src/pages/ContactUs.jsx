@@ -8,32 +8,32 @@ import useDocumentTitle from "../CustomHook/useDocumentTitle";
 function ContactUs() {
   useDocumentTitle("Contact Us");
   return (
-    <section class="w-full flex-grow">
-      <div class="relative">
+    <section className="w-full flex-grow">
+      <div className="relative">
         <img
-          class="w-full object-cover brightness-50 filter lg:h-[500px]"
+          className="w-full object-cover brightness-50 filter lg:h-[500px]"
           src="https://res.cloudinary.com/dmz847afv/image/upload/v1738738105/static/lg3fzlugfwfnrhcsnyn5.jpg"
           alt="Iphone with Macbook image"
         />
 
-        <div class="absolute top-1/2 left-1/2 mx-auto flex w-11/12 max-w-[1200px] -translate-x-1/2 -translate-y-1/2 flex-col text-center text-white lg:ml-5">
-          <h1 class="text-4xl font-bold sm:text-5xl">Contact us</h1>
-          <p class="mx-auto pt-3 text-xs lg:w-3/5 lg:pt-5 lg:text-base">
+        <div className="absolute top-1/2 left-1/2 mx-auto flex w-11/12 max-w-[1200px] -translate-x-1/2 -translate-y-1/2 flex-col text-center text-white lg:ml-5">
+          <h1 className="text-4xl font-bold sm:text-5xl">Contact us</h1>
+          <p className="mx-auto pt-3 text-xs lg:w-3/5 lg:pt-5 lg:text-base">
             Lorem ipsum dolor sit amet consectetur, adipisicing elit.
             Consequatur aperiam natus, nulla, obcaecati nesciunt, itaque
             adipisci earum ducimus pariatur eaque labore.
           </p>
         </div>
       </div>
-      <section class="mx-auto w-full my-6 grid max-w-[350px] grid-cols-1 gap-3 px-5 pb-10  lg:pt-10">
+      <section className="mx-auto w-full my-6 grid max-w-[350px] grid-cols-1 gap-3 px-5 pb-10  lg:pt-10">
         <div>
-          <div class="border py-5 shadow-md">
-            <div class="flex justify-between px-4 pb-5">
-              <p class="text-xl font-bold">Developer</p>
+          <div className="border py-5 shadow-md">
+            <div className="flex justify-between px-4 pb-5">
+              <p className="text-xl font-bold">Developer</p>
             </div>
-            <div class="flex flex-col gap-1 px-4">
+            <div className="flex flex-col gap-1 px-4">
               <a
-                class="flex items-center"
+                className="flex items-center"
                 href="mailto:ahmadraza1907r@gmail.com"
               >
                 <span className="text-violet-900 pr-2">
@@ -41,14 +41,14 @@ function ContactUs() {
                 </span>
                 ahmadraza1907r@gmail.com
               </a>
-              <a class="flex items-center" href="tel:+923251036190">
+              <a className="flex items-center" href="tel:+923251036190">
                 <span className="text-violet-900 pr-2">
                   <LocalPhoneIcon sx={{ color: "inherit", fontSize: "20px" }} />
                 </span>
                 +92 (325) 103-6190
               </a>
               <a
-                class="flex items-center"
+                className="flex items-center"
                 href="https://github.com/moonnight90"
                 target="_blank"
               >
@@ -58,7 +58,7 @@ function ContactUs() {
                 GitHub Profile
               </a>
               <a
-                class="flex items-center"
+                className="flex items-center"
                 href="http://wa.me/+923069419989"
                 target="_blank"
               >

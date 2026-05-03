@@ -67,7 +67,7 @@ function ManageAddress() {
             setUpdatingAddress={setUpdatingAddress}
             addressValue={updatingAddress}
             data={
-              UpdateAddress != "new"
+              updatingAddress != "new"
                 ? address.filter((e) => e.id == updatingAddress)?.[0]
                 : null
             }

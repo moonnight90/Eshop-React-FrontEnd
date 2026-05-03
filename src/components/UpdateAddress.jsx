@@ -73,7 +73,7 @@ function UpdateAddress({ setUpdatingAddress, data }) {
         setLoading(false);
       }
     }
-    setLoading(true);
+    setLoading(false);
   };
 
   return (

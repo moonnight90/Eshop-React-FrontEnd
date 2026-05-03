@@ -35,6 +35,8 @@ function Pdc({ product, showMessage, setShowMessage, setSnackBarMessage }) {
     if (!user.is_login) {
       window.scroll(0, 0);
       navigate("/login");
+      setLoadingCart(false);
+      return;
     }
     const resp = await myBackend.addToCart({
       product_id: product.id,
@@ -64,12 +66,16 @@ function Pdc({ product, showMessage, setShowMessage, setSnackBarMessage }) {
   };
 
   const handleAddtoWishlist = useCallback(async (id) => {
+    if (!user.is_login) {
+      navigate("/login");
+      return;
+    }
     const resp = await myBackend.addtoWishlist(user.user_token, id);
     if (resp.status == 200) {
       setSnackBarMessage("Added to wishlist ...");
       setShowMessage(true);
     }
-  });
+  }, [navigate, setShowMessage, setSnackBarMessage, user.is_login, user.user_token]);
   return (
     <div className="flex flex-col border hover:shadow-xl mt-2 hover:shadow-slate-300 p-2">
       {loading ? (

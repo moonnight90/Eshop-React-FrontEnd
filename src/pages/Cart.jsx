@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import myBackend from "../backend/config";
-import { CartCounter, LoadingScreen } from "../components";
+import { CartCounter, LoadingScreen, SnackBar } from "../components";
 import { useDispatch, useSelector } from "react-redux";
 import { setOrder } from "../store/orderSlice";
 import { setCartCount } from "../store/cartSlice";
@@ -14,8 +14,12 @@ function Cart() {
 
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [showMessage, setShowMessage] = useState(false);
+  const [snackBarMessage, setSnackBarMessage] = useState("");
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const paymentCancelled = searchParams.get("payment_cancelled");
   const cartCount = useSelector((state) => state.cartCount);
 
   const total = cart.reduce(
@@ -63,6 +67,13 @@ function Cart() {
     loadCart();
   }, []);
 
+  React.useEffect(() => {
+    if (paymentCancelled) {
+      setSnackBarMessage("Payment was cancelled. Your cart was not changed.");
+      setShowMessage(true);
+    }
+  }, [paymentCancelled]);
+
   // React.useEffect(() => {
   //   let total = 0;
   //   cart.forEach((item) => {
@@ -81,6 +92,11 @@ function Cart() {
 
   return (
     <>
+      <SnackBar
+        message={snackBarMessage}
+        setShowMessage={setShowMessage}
+        showMessage={showMessage}
+      />
       {loading && <LoadingScreen />}
       <nav className="mx-auto w-full mt-4 max-w-[1200px] px-5">
         <ul className="flex items-center">

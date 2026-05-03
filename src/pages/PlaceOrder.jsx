@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useSelector,useDispatch } from "react-redux";
 import myBackend from "../backend/config";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { resetState } from "../store/cartSlice";
 import { CircularProgress } from "@mui/material";
 import useDocumentTitle from "../CustomHook/useDocumentTitle";
+import { SnackBar } from "../components";
 
 function PlaceOrder() {
   // States
@@ -14,15 +15,28 @@ function PlaceOrder() {
   const [address, setAddress] = useState([]);
   const [seletedAddress, setSeletedAddress] = useState(null);
   const [updatingAddress, setUpdatingAddress] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState("COD");
   const [loading, setLoading] = useState(false);
+  const [showMessage, setShowMessage] = useState(false);
+  const [snackBarMessage, setSnackBarMessage] = useState("");
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [searchParams] = useSearchParams();
+  const paymentCancelled = searchParams.get("payment_cancelled");
 
   // Hooks
 
   useEffect(() => {
-    if (!orders?.pendingCheckout) navigate("/cart");
-  }, []);
+    if (!orders?.pendingCheckout) {
+      navigate(paymentCancelled ? "/cart?payment_cancelled=1" : "/cart");
+      return;
+    }
+
+    if (paymentCancelled) {
+      setSnackBarMessage("Payment was cancelled. No order was placed.");
+      setShowMessage(true);
+    }
+  }, [navigate, orders?.pendingCheckout, paymentCancelled]);
 
   // Methods
   const getDefaultAddress = useCallback((address) => {
@@ -32,13 +46,16 @@ function PlaceOrder() {
   const handleConfirmOrder = async () => {
     setLoading(true);
     if (seletedAddress == null) {
-      alert("Please Select an Address!");
-
+      setSnackBarMessage("Please select a shipping address.");
+      setShowMessage(true);
+      setLoading(false);
       return null;
     }
-    const resp = await myBackend.placeOrder(user?.user_token, {
+
+    const orderPayload = {
       address_id: seletedAddress?.id,
       total: orders?.total,
+      payment: paymentMethod,
       order_items: orders.products.map((product) => {
         return {
           product_id: product.product.id,
@@ -46,19 +63,55 @@ function PlaceOrder() {
           quantity: product.quantity,
         };
       }),
-    });
+    };
+
+    if (paymentMethod === "Online") {
+      const checkoutResp = await myBackend.createStripeCheckoutSession(
+        user?.user_token,
+        orderPayload
+      );
+      if (checkoutResp.status === 200) {
+        const checkoutData = await checkoutResp.json();
+        if (checkoutData?.url) {
+          window.location.href = checkoutData.url;
+          return;
+        }
+      }
+      let errorMessage = "Failed to start online payment.";
+      try {
+        const errorData = await checkoutResp.json();
+        errorMessage = errorData?.error || errorMessage;
+      } catch (_error) {
+        console.log(errorMessage);
+      }
+      setSnackBarMessage(errorMessage);
+      setShowMessage(true);
+      setLoading(false);
+      return;
+    }
+
+    const resp = await myBackend.placeOrder(user?.user_token, orderPayload);
 
     if (resp.status == 201) {
       // Navigate to Order Confirmed Page
       const json_resp = await resp.json();
+      dispatch(resetState());
       navigate(`/order-confirm/?order_id=${json_resp.id}`);
     } else if (resp.status == 500) {
-      console.log("Something went wrong");
+      setSnackBarMessage("Something went wrong while placing the order.");
+      setShowMessage(true);
     } else {
-      console.log(await resp.json());
+      let errorMessage = "Unable to place order.";
+      try {
+        const errorData = await resp.json();
+        errorMessage = errorData?.error || errorMessage;
+      } catch (_error) {
+        console.log(errorMessage);
+      }
+      setSnackBarMessage(errorMessage);
+      setShowMessage(true);
     }
     setLoading(false);
-    dispatch(resetState());
   };
   const addDimensionsTransformationToUrl = (url, h, w) => {
     if (!url) return url;
@@ -81,6 +134,11 @@ function PlaceOrder() {
 
   return (
     <>
+      <SnackBar
+        message={snackBarMessage}
+        setShowMessage={setShowMessage}
+        showMessage={showMessage}
+      />
       <div
         className={`${
           updatingAddress ? "fixed" : "hidden"
@@ -140,8 +198,23 @@ function PlaceOrder() {
           {/* Selecting Payment Method */}
           <div className="border py-5 px-4 shadow-md mt-5">
             <p className="font-bold">PAYMENT METHOD</p>
-            <div className="flex justify-between py-5">
-              <p>Cash on Delivery (COD)</p>
+            <div className="flex flex-col gap-3 py-5">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  checked={paymentMethod === "COD"}
+                  onChange={() => setPaymentMethod("COD")}
+                />
+                <span>Cash on Delivery (COD)</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  checked={paymentMethod === "Online"}
+                  onChange={() => setPaymentMethod("Online")}
+                />
+                <span>Pay Online (Stripe)</span>
+              </label>
             </div>
           </div>
 

@@ -5,6 +5,41 @@ class MyBackend {
 
   constructor() {}
 
+  getToken(providedToken = null) {
+    if (providedToken) {
+      return providedToken;
+    }
+
+    const rawToken = localStorage.getItem("user_token");
+    if (!rawToken) {
+      return null;
+    }
+
+    try {
+      const parsed = JSON.parse(rawToken);
+      return typeof parsed === "string" ? parsed : null;
+    } catch (_error) {
+      return rawToken;
+    }
+  }
+
+  authHeaders(token = null, withJson = true) {
+    const resolvedToken = this.getToken(token);
+    if (!resolvedToken) {
+      return null;
+    }
+
+    const headers = {
+      Authorization: `Token ${resolvedToken}`,
+    };
+
+    if (withJson) {
+      headers["Content-Type"] = "application/json";
+    }
+
+    return headers;
+  }
+
   async getProducts({
     limit = 20,
     sortby = "title",
@@ -15,20 +50,25 @@ class MyBackend {
     categories = [],
     q = null,
   }) {
-    
     const params = [];
+    const ordering = `${order === "asc" ? "" : "-"}${sortby}`;
+
     if (limit) params.push(`limit=${limit}`);
     if (page) params.push(`page=${page}`);
-    if (sortby) params.push(`ordering=${sortby}`);
-    if (categories.length) params.push(`category=${categories.join("&category=")}`);
+    if (ordering) params.push(`ordering=${ordering}`);
+    if (categories.length) {
+      params.push(
+        `category=${categories.map((cat) => encodeURIComponent(cat)).join("&category=")}`
+      );
+    }
     if (min_price) params.push(`min_price=${min_price}`);
     if (max_price) params.push(`max_price=${max_price}`);
-    if (q) params.push(`search=${q}`);
+    if (q) params.push(`search=${encodeURIComponent(q)}`);
 
-    sortby = `${order === "asc" ? "" : "-"}${sortby}`;
     try {
       const response = await fetch(
-        `${this.BASE}/api/products/${params.length?`?${params.join('&')}`:""}`,{
+        `${this.BASE}/api/products/${params.length ? `?${params.join("&")}` : ""}`,
+        {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -51,20 +91,21 @@ class MyBackend {
         },
       });
       return await resp.json();
-    } catch (err) {}
+    } catch (_err) {
+      return {};
+    }
   }
 
   async addToCart({ product_id, quantity }) {
+    const headers = this.authHeaders();
+    if (!headers) {
+      return { status: 401, error: "Authentication required." };
+    }
+
     try {
       const response = await fetch(`${this.BASE}/api/cart/`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Token ${localStorage
-            .getItem("user_token")
-            .replace('"', "")
-            .replace('"', "")}`,
-        },
+        headers,
         body: JSON.stringify({
           id: product_id,
           q: quantity,
@@ -78,35 +119,35 @@ class MyBackend {
   }
 
   async getCart({ quantity_only }) {
+    const headers = this.authHeaders();
+    if (!headers) {
+      return quantity_only ? { total_quantity: 0 } : [];
+    }
+
     try {
       const response = await fetch(
         `${this.BASE}/api/cart/${quantity_only ? "?total_quantity=1" : ""}`,
         {
           method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Token ${localStorage
-              .getItem("user_token")
-              .replace('"', "")
-              .replace('"', "")}`,
-          },
+          headers,
         }
       );
       return await response.json();
-    } catch (err) {}
+    } catch (_err) {
+      return quantity_only ? { total_quantity: 0 } : [];
+    }
   }
 
   async updateCart({ product_id, quantity }) {
+    const headers = this.authHeaders();
+    if (!headers) {
+      return { status: 401, error: "Authentication required." };
+    }
+
     try {
       const response = await fetch(`${this.BASE}/api/cart/`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Token ${localStorage
-            .getItem("user_token")
-            .replace('"', "")
-            .replace('"', "")}`,
-        },
+        headers,
         body: JSON.stringify({
           id: product_id,
           q: quantity,
@@ -120,16 +161,15 @@ class MyBackend {
   }
 
   async deleteCart(product_id) {
+    const headers = this.authHeaders();
+    if (!headers) {
+      return { status: 401, error: "Authentication required." };
+    }
+
     try {
       const response = await fetch(`${this.BASE}/api/cart/`, {
         method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Token ${localStorage
-            .getItem("user_token")
-            .replace('"', "")
-            .replace('"', "")}`,
-        },
+        headers,
         body: JSON.stringify({
           id: product_id,
         }),
@@ -149,13 +189,13 @@ class MyBackend {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          email: email,
-          name: name,
+          email,
+          name,
         }),
       });
       return response;
-    } catch (err) {
-      return new Object();
+    } catch (_err) {
+      return new Response(null, { status: 500 });
     }
   }
 
@@ -167,20 +207,19 @@ class MyBackend {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          email: email,
-          otp: otp,
+          email,
+          otp,
         }),
       });
       return resp;
-    } catch (err) {
-      return new Object();
+    } catch (_err) {
+      return new Response(null, { status: 500 });
     }
   }
 
   async categories() {
-    console.log(this.BASE);
     try {
-      const resp = await fetch(`${this.BASE}/api/categories`, {
+      const resp = await fetch(`${this.BASE}/api/categories/`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -188,178 +227,236 @@ class MyBackend {
       });
 
       return await resp.json();
-    } catch (error) {
-      return Object();
+    } catch (_error) {
+      return [];
     }
   }
 
   async addressbook(token) {
+    const headers = this.authHeaders(token);
+    if (!headers) {
+      return [];
+    }
+
     try {
       const resp = await fetch(`${this.BASE}/api/addressbook/`, {
         method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Token ${token}`,
-        },
+        headers,
       });
 
       return await resp.json();
     } catch (error) {
       console.log(error);
-      return new Array();
+      return [];
     }
   }
 
   async addressBookUpdate(token, data) {
+    const headers = this.authHeaders(token);
+    if (!headers) {
+      return new Response(null, { status: 401 });
+    }
+
     try {
       const resp = await fetch(`${this.BASE}/api/addressbook/`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Token ${token}`,
-        },
+        headers,
         body: JSON.stringify(data),
       });
 
       return resp;
-    } catch (error) {
+    } catch (_error) {
       return new Response(null, { status: 500 });
     }
   }
 
   async addressBookAdd(token, data) {
+    const headers = this.authHeaders(token);
+    if (!headers) {
+      return new Response(null, { status: 401 });
+    }
+
     try {
       const resp = await fetch(`${this.BASE}/api/addressbook/`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Token ${token}`,
-        },
+        headers,
         body: JSON.stringify(data),
       });
       return resp;
-    } catch (error) {
+    } catch (_error) {
       return new Response(null, { status: 500 });
     }
   }
 
   async addressBookDelete(token, id) {
+    const headers = this.authHeaders(token);
+    if (!headers) {
+      return new Response(null, { status: 401 });
+    }
+
     try {
       const resp = await fetch(`${this.BASE}/api/addressbook/`, {
         method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Token ${token}`,
-        },
+        headers,
         body: JSON.stringify({ id }),
       });
       return resp;
-    } catch (error) {
+    } catch (_error) {
       return new Response(null, { status: 500 });
     }
   }
 
   async placeOrder(token, data) {
+    const headers = this.authHeaders(token);
+    if (!headers) {
+      return new Response(null, { status: 401 });
+    }
+
     try {
       const resp = await fetch(`${this.BASE}/api/orders/`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Token ${token}`,
-        },
+        headers,
         body: JSON.stringify(data),
       });
 
       return resp;
-    } catch (error) {
+    } catch (_error) {
+      return new Response(null, { status: 500 });
+    }
+  }
+
+  async createStripeCheckoutSession(token, data) {
+    const headers = this.authHeaders(token);
+    if (!headers) {
+      return new Response(null, { status: 401 });
+    }
+
+    try {
+      const resp = await fetch(`${this.BASE}/api/payments/create-checkout-session/`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(data),
+      });
+      return resp;
+    } catch (_error) {
+      return new Response(null, { status: 500 });
+    }
+  }
+
+  async getStripeSessionStatus(token, sessionId) {
+    const headers = this.authHeaders(token);
+    if (!headers) {
+      return new Response(null, { status: 401 });
+    }
+
+    try {
+      const resp = await fetch(
+        `${this.BASE}/api/payments/session-status/?session_id=${encodeURIComponent(sessionId)}`,
+        {
+          method: "GET",
+          headers,
+        }
+      );
+      return resp;
+    } catch (_error) {
       return new Response(null, { status: 500 });
     }
   }
 
   async getOrders(token, id = null) {
+    const headers = this.authHeaders(token);
+    if (!headers) {
+      return new Response(null, { status: 401 });
+    }
+
     try {
       const resp = await fetch(
         `${this.BASE}/api/orders/${id ? `?id=${id}` : ""}`,
         {
           method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Token ${token}`,
-          },
+          headers,
         }
       );
       return resp;
-    } catch (error) {
+    } catch (_error) {
       return new Response(null, { status: 500 });
     }
   }
 
   async getOrder(token, id) {
+    const headers = this.authHeaders(token);
+    if (!headers) {
+      return new Response(null, { status: 401 });
+    }
+
     try {
       const resp = await fetch(`${this.BASE}/api/order/?order_id=${id}`, {
         method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Token ${token}`,
-        },
+        headers,
       });
       return resp;
-    } catch (error) {
-      return Response(null, { status: 500 });
+    } catch (_error) {
+      return new Response(null, { status: 500 });
     }
   }
 
   async getWishlistItems(token) {
+    const headers = this.authHeaders(token);
+    if (!headers) {
+      return new Response(null, { status: 401 });
+    }
+
     try {
-      const resp = await fetch(`${this.BASE}/api/wishlist`, {
+      const resp = await fetch(`${this.BASE}/api/wishlist/`, {
         method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Token ${token}`,
-        },
+        headers,
       });
       return resp;
-    } catch (error) {
-      return Response(null, { status: 500 });
+    } catch (_error) {
+      return new Response(null, { status: 500 });
     }
   }
 
   async addtoWishlist(token, id) {
+    const headers = this.authHeaders(token);
+    if (!headers) {
+      return new Response(null, { status: 401 });
+    }
+
     try {
       const resp = await fetch(`${this.BASE}/api/wishlist/`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Token ${token}`,
-        },
+        headers,
         body: JSON.stringify({ id }),
       });
       return resp;
-    } catch (error) {
-      return Response(null, { status: 500 });
+    } catch (_error) {
+      return new Response(null, { status: 500 });
     }
   }
 
   async deleteWishlistItem(token, id) {
+    const headers = this.authHeaders(token);
+    if (!headers) {
+      return new Response(null, { status: 401 });
+    }
+
     try {
       const resp = await fetch(`${this.BASE}/api/wishlist/`, {
         method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Token ${token}`,
-        },
+        headers,
         body: JSON.stringify({ id }),
       });
       return resp;
-    } catch (error) {
-      return Response(null, { status: 500 });
+    } catch (_error) {
+      return new Response(null, { status: 500 });
     }
   }
 
   async autoComplete(query, controleSignal) {
     try {
       const resp = await fetch(
-        `${this.BASE}/api/autocomplete/?query=${query}`,
+        `${this.BASE}/api/autocomplete/?query=${encodeURIComponent(query)}`,
         {
           signal: controleSignal,
           method: "GET",
@@ -369,28 +466,27 @@ class MyBackend {
         }
       );
       return resp;
-    } catch (error) {
+    } catch (_error) {
       return new Response(null, { status: 500 });
     }
   }
-  async reset_password(email){
+
+  async reset_password(email) {
     try {
       const resp = await fetch(`${this.BASE}/api/reset_password/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          email: email,
-        }),
+        body: JSON.stringify({ email }),
       });
       return resp;
-      
-    } catch (error) {
-     return new Response(null, { status: 500 }); 
+    } catch (_error) {
+      return new Response(null, { status: 500 });
     }
   }
-  async confirm_reset_password(email,otp,password){
+
+  async confirm_reset_password(email, otp, password) {
     try {
       const resp = await fetch(`${this.BASE}/api/reset_password_confirm/`, {
         method: "POST",
@@ -398,15 +494,14 @@ class MyBackend {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          email: email,
-          otp:otp,
-          new_password:password,
+          email,
+          otp,
+          new_password: password,
         }),
       });
       return resp;
-      
-    } catch (error) {
-     return new Response(null, { status: 500 }); 
+    } catch (_error) {
+      return new Response(null, { status: 500 });
     }
   }
 }

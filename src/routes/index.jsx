@@ -89,15 +89,27 @@ export const router = createBrowserRouter([
       },
       {
         path: "order-confirm",
-        element: <OrderConfirm />,
+        element: (
+          <AuthLayout authenticated={true}>
+            <OrderConfirm />
+          </AuthLayout>
+        ),
       },
       {
         path: "order-history",
-        element: <OrderHistroy />,
+        element: (
+          <AuthLayout authenticated={true}>
+            <OrderHistroy />
+          </AuthLayout>
+        ),
       },
       {
         path: "wishlist",
-        element: <Wishlist />,
+        element: (
+          <AuthLayout authenticated={true}>
+            <Wishlist />
+          </AuthLayout>
+        ),
       },
       {
         path: "contact-us",

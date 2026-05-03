@@ -1,35 +1,81 @@
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useSearchParams,Link } from "react-router-dom";
 import myBackend from "../backend/config";
 import { useNavigate } from "react-router-dom";
 import { LoadingScreen } from "../components";
 import useDocumentTitle from "../CustomHook/useDocumentTitle";
+import { resetState, setCartCount } from "../store/cartSlice";
 
 
 function OrderConfirm() {
   // States
   useDocumentTitle("Orders");
   const user = useSelector((state) => state.auth);
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const [wrongReq, setWrongReq] = useState(true);
   const [orderStatus, setOrderStatus] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   // Hooks
   useEffect(() => {
     const order_id = searchParams.get("order_id");
+    const session_id = searchParams.get("session_id");
+
+    const updateCartQuantity = async () => {
+      const resp = await myBackend.getCart({ quantity_only: 1 });
+      dispatch(setCartCount(resp?.total_quantity || 0));
+    };
+
     const fetchOrder = async (order_id) => {
       const resp = await myBackend.getOrders(user.user_token, order_id);
       if (resp.status == 200) {
         const json_data = await resp.json();
         setOrderStatus(json_data.status);
         setWrongReq(false);
+        dispatch(resetState());
+        updateCartQuantity();
       } else {
         navigate("/cart");
       }
     };
+
+    const verifyStripeSession = async (sessionId) => {
+      for (let i = 0; i < 8; i++) {
+        const resp = await myBackend.getStripeSessionStatus(
+          user.user_token,
+          sessionId
+        );
+        if (resp.status === 200) {
+          const jsonData = await resp.json();
+          setOrderStatus(jsonData?.status);
+          setWrongReq(false);
+          dispatch(resetState());
+          updateCartQuantity();
+          return;
+        }
+        if (resp.status === 202) {
+          await new Promise((resolve) => setTimeout(resolve, 1200));
+          continue;
+        }
+        try {
+          const errorData = await resp.json();
+          setErrorMessage(errorData?.error || "Payment could not be verified.");
+        } catch (_error) {
+          setErrorMessage("Payment could not be verified.");
+        }
+        setWrongReq(false);
+        return;
+      }
+      setErrorMessage("Payment is still pending. Please check your orders later.");
+      setWrongReq(false);
+    };
+
     if (order_id) {
       fetchOrder(order_id);
+    } else if (session_id) {
+      verifyStripeSession(session_id);
     } else {
       navigate("/cart");
     }
@@ -39,6 +85,21 @@ function OrderConfirm() {
     <>
       {wrongReq ? (
         <LoadingScreen />
+      ) : errorMessage ? (
+        <div className="flex-grow">
+          <section className="mt-20 px-4 text-center">
+            <p className="text-3xl font-bold">Order confirmation failed</p>
+            <p className="mx-auto mt-4 max-w-xl text-gray-700">
+              {errorMessage}
+            </p>
+            <Link
+              to="/cart"
+              className="mt-8 inline-block bg-amber-400 px-4 py-2"
+            >
+              Back to cart
+            </Link>
+          </section>
+        </div>
       ) : (
         <div className="flex-grow">
           <section className="mt-20 px-4">

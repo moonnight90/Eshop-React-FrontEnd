@@ -31,13 +31,16 @@ function OrderHistroy() {
   // Hooks
   useEffect(() => {
     const getOrders = async () => {
-      const resp = await myBackend.getOrders(user.user_token, null);
-      if (resp.status == 200) {
-        setOrders(await resp.json());
+      try {
+        const resp = await myBackend.getOrders(user.user_token, null);
+        if (resp.status == 200) {
+          setOrders(await resp.json());
+        }
+      } finally {
+        setLoading(false);
       }
     };
     getOrders();
-    setLoading(false);
   }, []);
 
   useEffect(() => {

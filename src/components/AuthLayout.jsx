@@ -12,11 +12,10 @@ const AuthLayout = ({ children, authenticated = true }) => {
       navigate("/");
     }
     setLoader(false);
-  }, [is_login, navigate]);
+  }, [authenticated, is_login, navigate]);
 
   return loader ? <h1>Loading </h1> : <>{children}</>;
 };
 
 export default AuthLayout;
-
 

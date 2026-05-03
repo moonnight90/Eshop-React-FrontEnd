@@ -95,17 +95,25 @@ function Header() {
         dispatch(setCartCount(resp?.total_quantity));
       }
     }
-    chnageCartQuantity();
+    if (user.is_login) {
+      chnageCartQuantity();
+    } else {
+      dispatch(setCartCount(0));
+    }
 
     async function update_user() {
       const resp = await backendAuth.me(user.user_token);
-      const json_resp = await resp.json();
-      dispatch(
-        login({
-          token: user.user_token,
-          user: json_resp,
-        })
-      );
+      if (resp.status === 200) {
+        const json_resp = await resp.json();
+        dispatch(
+          login({
+            token: user.user_token,
+            user: json_resp,
+          })
+        );
+      } else {
+        dispatch(logout());
+      }
     }
     if (user.is_login) {
       update_user();
